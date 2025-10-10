@@ -1,6 +1,5 @@
 import sql from "mssql";
 import { dbPool } from "@/db/index.ts";
-import { randomUUID } from "crypto";
 
 export async function getOneUserByID(id: string) {
   const pool = await dbPool;
@@ -38,10 +37,11 @@ export async function createUser(
   }
 }
 
-export async function createSession(id: string) {
-  const expireDate = new Date(Date.now() + 1000 * 60 * 60 + 24 * 7);
-  const sessionID = randomUUID();
-
+export async function createSession(
+  id: string,
+  expireDate: Date,
+  sessionID: string,
+) {
   try {
     const pool = await dbPool;
     const result = await pool

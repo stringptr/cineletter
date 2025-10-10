@@ -36,6 +36,9 @@ export async function userLogin(
 
   if (!isPasswordCorrect) return ({ success: false, error: "wrong-password" });
 
-  const res = await userQuery.createSession(id);
+  const expireDate = new Date(Date.now() + 1000 * 60 * 60 + 24 * 7);
+  const sessionID = randomUUID();
+
+  const res = await userQuery.createSession(id, expireDate, sessionID);
   return res;
 }
