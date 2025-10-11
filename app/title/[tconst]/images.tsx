@@ -18,12 +18,12 @@ export async function BannerImages(
   if (data !== null) {
     const banner = data.backdrops[0];
     return (
-      <div className="absolute h-[65vh] overflow-hidden shadow-2xl mx-auto w-[80%]">
+      <div className="z-0 absolute h-[65vh] overflow-hidden shadow-2xl ml-auto w-[80%]">
         <Image
           fill
           src={`https://image.tmdb.org/t/p/original${banner.file_path}`}
           alt="BannerBackground"
-          className="bottom-0 self-baseline object-cover w-full h-full"
+          className="object-cover w-full h-full"
           priority
         />
 
@@ -48,7 +48,7 @@ export async function ImagesCarousel(
   }
 
   return (
-    <Carousel className="relative w-full max-w-xl mx-auto">
+    <Carousel className="relative w-[80%] max-w-xl mx-auto">
       <CarouselContent>
         {images
           .map((

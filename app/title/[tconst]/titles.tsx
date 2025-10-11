@@ -2,9 +2,8 @@ import Image from "next/image";
 import { imdb } from "@/services/imdb.ts";
 import { getImagePalette } from "@/lib/palette-gen.ts";
 
-export async function Titles({ tconst }: { tconst: string }) {
+export async function PrimaryPoster({ tconst }: { tconst: string }) {
   const data = await imdb.getDetails(tconst);
-  const palette = await getImagePalette(data.primaryImage.url);
 
   if (data !== null) {
     return (
@@ -18,13 +17,42 @@ export async function Titles({ tconst }: { tconst: string }) {
             className="rounded-md m-0 w-[300px] h-auto object-contain cursor-zoom-in"
           />
         </a>
-        <h1
-          className={`m-0 font-extrabold text-[8rem]`}
-          style={{ color: palette.DarkVibrant?.hex }}
-        >
-          {data.primaryTitle.toUpperCase()}
-        </h1>
       </div>
+    );
+  } else {
+    return (
+      <>
+        Primary Poster can't be found.
+      </>
+    );
+  }
+}
+
+export async function Titles({ tconst }: { tconst: string }) {
+  const data = await imdb.getDetails(tconst);
+  const palette = await getImagePalette(data.primaryImage.url);
+
+  if (data !== null) {
+    return (
+      <>
+        <h1
+          className={`relative p-0 m-0 font-bold text-[5rem]`}
+          style={{ color: palette.Vibrant?.hex }}
+        >
+          {data.primaryTitle}
+        </h1>
+        <h3 className={`ml-[5px] relative p-0 m-0 font-normal text-xl`}>
+          {data.startYear}
+        </h3>
+        <div className="flex flex-row">
+          <h3 className={`ml-[5px] relative p-0 m-0 font-normal text-xl`}>
+            Directed by
+          </h3>
+          <h3 className={`ml-[5px] relative p-0 m-0 font-normal text-xl`}>
+            {data.directors[0].displayName}
+          </h3>
+        </div>
+      </>
     );
   } else {
     return (
