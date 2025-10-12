@@ -1,30 +1,22 @@
 import { tmdb } from "./tmdb.ts";
 
-async function getImages(id: string) {
-  return await tmdb.fetchTmdb(`/movie/${id}/images`);
-}
-
-async function getDetails(id: string) {
-  return await tmdb.fetchTmdb(`/movie/${id}`);
-}
-
-async function getVideos(id: string) {
-  return await tmdb.fetchTmdb(`/movie/${id}/videos`);
+async function getTitle(id: string, type: "/images" | "/videos" | null) {
+  return await tmdb.fetch(`/movie/${id}${type}`);
 }
 
 async function search(searched: string) {
-  return await tmdb.fetchTmdb(`/search/movie`, `&query=${searched}`);
+  return await tmdb.fetch(`/search/movie`, `&query=${searched}`);
 }
 
 async function tconstFromId(id: string) {
-  const res = await getDetails(id);
+  const res = await title.details(id);
   return res.imdb_id;
 }
 
 export const title = {
-  getImages,
-  getDetails,
-  getVideos,
+  images: (id: string) => getTitle(id, "/images"),
+  videos: (id: string) => getTitle(id, "/videos"),
+  details: (id: string) => getTitle(id, null),
   search,
   tconstFromId,
 };

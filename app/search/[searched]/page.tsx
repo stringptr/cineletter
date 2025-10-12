@@ -6,13 +6,13 @@ import { imdb } from "@/services/imdb.ts";
 export default async function Page(
   { params }: { params: { searched: string } },
 ) {
-  const data = await tmdb.titleSearch(params.searched);
+  const data = await tmdb.title.search(params.searched);
   if (!data || !data.results) {
     return <div className="text-white">No results found.</div>;
   }
   const results = data.results;
   const tconsts = await Promise.all(
-    results.map((item: any) => tmdb.tconstFromId(item.id)),
+    results.map((item: any) => tmdb.title.tconstFromId(item.id)),
   );
   const imdb_data = await Promise.all(
     tconsts.map((item: any) => imdb.getDetails(item)),
@@ -53,4 +53,3 @@ export default async function Page(
     </div>
   );
 }
-

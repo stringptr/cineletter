@@ -48,7 +48,7 @@ export function Crew({ tconst }: { tconst: string }) {
             <a
               href={`/crew/${person.id}`}
               key={person.id}
-              className="border-1 px-2 py-1 rounded-sm"
+              className="border-1 px-2 py-1 rounded-sm hover:bg-white hover:text-black"
             >
               {person.displayName}
             </a>
@@ -58,7 +58,7 @@ export function Crew({ tconst }: { tconst: string }) {
             <a
               href={`/crew/${person.id}`}
               key={person.id}
-              className="border-1 px-2 py-1 rounded-sm"
+              className="border-1 px-2 py-1 rounded-sm hover:bg-white hover:text-black"
             >
               {person.displayName}
             </a>
@@ -69,7 +69,7 @@ export function Crew({ tconst }: { tconst: string }) {
               <a
                 href={`/subgenre/${interest.id}`}
                 key={interest.id}
-                className="border-1 px-2 py-1 rounded-sm"
+                className="border-1 px-2 py-1 rounded-sm hover:bg-white hover:text-black"
               >
                 {interest.name}
               </a>

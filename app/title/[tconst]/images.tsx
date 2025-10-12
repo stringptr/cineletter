@@ -12,26 +12,31 @@ import { imdb } from "@/services/imdb.ts";
 export async function BannerImages(
   { tconst }: { tconst: string },
 ) {
-  const id = await tmdb.idFromImdb(tconst);
-  const data = await tmdb.title.getImages(id);
+  const id = await tmdb.idFromImdb(tconst, "movie");
+  const data = await tmdb.title.images(id);
 
-  if (data !== null) {
+  if (data !== undefined) {
     const banner = data?.backdrops[0];
     return (
-      <div className="z-0 absolute h-[65vh] overflow-hidden shadow-2xl ml-[9%] w-[80%]">
-        <Image
-          fill
-          src={`https://image.tmdb.org/t/p/original${banner?.file_path}`}
-          alt="BannerBackground"
-          className="object-cover w-full h-full"
-          priority
-        />
+      <>
+        <div
+          className={`z-0 absolute h-[65vh] overflow-hidden shadow-2xl ml-[9%] w-[80%]`}
+        >
+          <Image
+            fill
+            src={`https://image.tmdb.org/t/p/original${banner?.file_path}`}
+            alt="BannerBackground"
+            className="object-cover w-full h-full"
+            priority
+          />
 
-        <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-black via-black/60 to-transparent" />
-        <div className="absolute bottom-0 w-full h-40 bg-gradient-to-t from-black via-black/60 to-transparent" />
-        <div className="absolute left-0 h-full w-40 bg-gradient-to-r from-black via-black/60 to-transparent" />
-        <div className="absolute right-0 h-full w-40 bg-gradient-to-l from-black via-black/60 to-transparent" />
-      </div>
+          <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-black via-black/60 to-transparent" />
+          <div className="absolute bottom-0 w-full h-40 bg-gradient-to-t from-black via-black/60 to-transparent" />
+          <div className="absolute left-0 h-full w-40 bg-gradient-to-r from-black via-black/60 to-transparent" />
+          <div className="absolute right-0 h-full w-40 bg-gradient-to-l from-black via-black/60 to-transparent" />
+        </div>
+        <div className="relative pt-[32rem]"></div>
+      </>
     );
   }
 }
