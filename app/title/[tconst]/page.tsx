@@ -9,11 +9,11 @@ import { imdb } from "@/services/imdb.ts";
 
 export default async function Page({ params }: { params: { tconst: string } }) {
   const id = await tmdb.idFromImdb(params.tconst);
-  const dataImages = await tmdb.getImages(id);
+  const dataImages = await tmdb.title.getImages(id);
 
   return (
     <div className="px-auto w-full text-white">
-      <BannerImages data={dataImages} />
+      <BannerImages tconst={params.tconst} />
       <div className="grid grid-cols-2 gap-20 w-[80vw] pt-[32rem]">
         <div className="ml-auto max-w-content pt-4">
           <PrimaryPoster tconst={params.tconst} />

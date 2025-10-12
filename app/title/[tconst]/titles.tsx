@@ -36,7 +36,7 @@ export async function Titles({ tconst }: { tconst: string }) {
     return (
       <>
         <h1
-          className={`relative p-0 m-0 font-bold text-[5rem]`}
+          className={`relative p-0 mt-4 mb-6 font-bold text-[5rem] leading-[1.1]`}
           style={{ color: palette.Vibrant?.hex }}
         >
           {data.primaryTitle}

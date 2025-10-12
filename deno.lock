@@ -15,6 +15,7 @@
     "npm:@libsql/client@~0.15.15": "0.15.15",
     "npm:@radix-ui/react-label@^2.1.7": "2.1.7_@types+react@19.1.14_@types+react-dom@19.1.9__@types+react@19.1.14_react@19.1.0_react-dom@19.1.0__react@19.1.0",
     "npm:@radix-ui/react-slot@^1.2.3": "1.2.3_@types+react@19.1.14_react@19.1.0",
+    "npm:@tailwindcss/line-clamp@~0.4.4": "0.4.4_tailwindcss@4.1.13",
     "npm:@tailwindcss/postcss@4": "4.1.13",
     "npm:@types/bcrypt@6": "6.0.0",
     "npm:@types/mssql@^9.1.8": "9.1.8",
@@ -811,6 +812,12 @@
       "integrity": "sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==",
       "dependencies": [
         "tslib"
+      ]
+    },
+    "@tailwindcss/line-clamp@0.4.4_tailwindcss@4.1.13": {
+      "integrity": "sha512-5U6SY5z8N42VtrCrKlsTAA35gy2VSyYtHWCsg1H87NU1SXnEfekTVlrga9fzUDrrHcGi2Lb5KenUWb4lRQT5/g==",
+      "dependencies": [
+        "tailwindcss"
       ]
     },
     "@tailwindcss/node@4.1.13": {
@@ -3716,6 +3723,7 @@
         "npm:@libsql/client@~0.15.15",
         "npm:@radix-ui/react-label@^2.1.7",
         "npm:@radix-ui/react-slot@^1.2.3",
+        "npm:@tailwindcss/line-clamp@~0.4.4",
         "npm:@tailwindcss/postcss@4",
         "npm:@types/bcrypt@6",
         "npm:@types/mssql@^9.1.8",

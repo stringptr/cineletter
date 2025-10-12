@@ -10,18 +10,18 @@ import { tmdb } from "@/services/tmdb.ts";
 import { imdb } from "@/services/imdb.ts";
 
 export async function BannerImages(
-  { data, children }: {
-    data: {};
-    children?: React.ReactElement | null;
-  },
+  { tconst }: { tconst: string },
 ) {
+  const id = await tmdb.idFromImdb(tconst);
+  const data = await tmdb.title.getImages(id);
+
   if (data !== null) {
-    const banner = data.backdrops[0];
+    const banner = data?.backdrops[0];
     return (
       <div className="z-0 absolute h-[65vh] overflow-hidden shadow-2xl ml-[9%] w-[80%]">
         <Image
           fill
-          src={`https://image.tmdb.org/t/p/original${banner.file_path}`}
+          src={`https://image.tmdb.org/t/p/original${banner?.file_path}`}
           alt="BannerBackground"
           className="object-cover w-full h-full"
           priority
@@ -41,7 +41,7 @@ export async function ImagesCarousel(
 ) {
   const data = await imdb.getImages(tconst);
 
-  const images = data.images.filter((img: any) => img.type === type);
+  const images = data?.images?.filter((img: any) => img.type === type);
 
   if (images.length === 0) {
     return;
@@ -58,7 +58,7 @@ export async function ImagesCarousel(
       <Carousel className="relative w-[80%] max-w-xl mx-auto">
         <CarouselContent>
           {images
-            .map((
+            ?.map((
               img: any,
               idx: number,
             ) => (

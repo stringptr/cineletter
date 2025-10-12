@@ -1,5 +1,8 @@
 import process from "node:process";
 
+import { title } from "./tmdb_title.ts";
+import { person } from "./tmdb_person.ts";
+
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
@@ -19,22 +22,6 @@ async function fetchTmdb(
   return res.json();
 }
 
-async function getImages(id: string) {
-  return await fetchTmdb(`/movie/${id}/images`);
-}
-
-async function getDetails(id: string) {
-  return await fetchTmdb(`/movie/${id}`);
-}
-
-async function getVideos(id: string) {
-  return await fetchTmdb(`/movie/${id}/videos`);
-}
-
-async function titleSearch(searched: string) {
-  return await fetchTmdb(`/search/movie`, `&query=${searched}`);
-}
-
 async function idFromImdb(tconst: string) {
   const res = await fetchTmdb(
     `/find/${tconst}`,
@@ -49,21 +36,9 @@ async function idFromImdb(tconst: string) {
   return id;
 }
 
-async function tconstFromId(id: string) {
-  const res = await getDetails(id);
-  return res.imdb_id;
-}
-
-async function search(query: string) {
-  return await fetchTmdb(`/search/movie&query=${encodeURIComponent(query)}`);
-}
-
 export const tmdb = {
-  getImages,
-  getDetails,
-  getVideos,
-  titleSearch,
+  fetchTmdb,
   idFromImdb,
-  tconstFromId,
-  search,
+  title,
+  person,
 };
