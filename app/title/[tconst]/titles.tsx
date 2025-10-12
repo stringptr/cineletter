@@ -48,9 +48,12 @@ export async function Titles({ tconst }: { tconst: string }) {
           <h3 className={`ml-[5px] relative p-0 m-0 font-normal text-xl`}>
             Directed by
           </h3>
-          <h3 className={`ml-[5px] relative p-0 m-0 font-normal text-xl`}>
+          <a
+            href={`/crew/${data.directors[0].id}`}
+            className={`b-1 border-b ml-[5px] relative p-0 m-0 font-normal text-xl`}
+          >
             {data.directors[0].displayName}
-          </h3>
+          </a>
         </div>
       </>
     );
@@ -69,7 +72,7 @@ export async function Details({ tconst }: { tconst: string }) {
   if (data !== null) {
     return (
       <div className="m-0 p-0 relative">
-        <p className="text-md">{data.plot}</p>
+        <p className="text-lg">{data.plot}</p>
       </div>
     );
   } else {

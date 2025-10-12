@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import { BannerImages, ImagesCarousel } from "./images.tsx";
 import { Details, PrimaryPoster, Titles } from "./titles.tsx";
+import { Crew } from "./crew.tsx";
 import { tmdb } from "@/services/tmdb.ts";
 import { imdb } from "@/services/imdb.ts";
 
@@ -17,10 +18,11 @@ export default async function Page({ params }: { params: { tconst: string } }) {
         <div className="ml-auto max-w-content pt-4">
           <PrimaryPoster tconst={params.tconst} />
         </div>
-        <div className="flex flex-col w-[600px]">
+        <div className="mr-auto flex flex-col w-[600px]">
           <Titles tconst={params.tconst} />
           <div className="mt-8 ml-[5px] flex flex-col gap-8">
             <Details tconst={params.tconst} />
+            <Crew tconst={params.tconst} />
             <ImagesCarousel tconst={params.tconst} type="poster" />
             <ImagesCarousel tconst={params.tconst} type="still_frame" />
             <ImagesCarousel tconst={params.tconst} type="behind_the_scenes" />
