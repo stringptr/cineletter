@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import { GalleryVerticalEnd } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils.ts";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Label } from "@/components/ui/label.tsx";
 
 export function LoginForm({
   className,
@@ -75,7 +76,7 @@ export function LoginForm({
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
-            <a
+            <Link
               href="#"
               className="flex flex-col items-center gap-2 font-medium"
             >
@@ -83,15 +84,18 @@ export function LoginForm({
                 <GalleryVerticalEnd className="size-6" />
               </div>
               <span className="sr-only">Satria's Weirdness</span>
-            </a>
+            </Link>
 
             <h1 className="text-xl font-bold">Welcome (Back?)</h1>
 
             <div className="text-center text-sm">
               Opps, new around here?{" "}
-              <a href="/signup" className="underline underline-offset-4">
+              <Link
+                href="/auth/signup"
+                className="underline underline-offset-4"
+              >
                 Join here
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -129,7 +133,7 @@ export function LoginForm({
 
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
         By signing up and login, you agree to
-        be<a href="https://www.linuxatemyram.com">my dear audience</a>
+        be<Link href="https://www.linuxatemyram.com">my dear audience</Link>
         {" "}
       </div>
     </div>

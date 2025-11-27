@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@felix/bcrypt": "jsr:@felix/bcrypt@^1.0.5",
+    "@felix/bcrypt": "jsr:@felix/bcrypt@^1.0.8",
     "@std/dotenv": "jsr:@std/dotenv@^0.225.5",
   }
 }

@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`bg-black ${font_header.variable} antialiased`}
+        className={`bg-[#111111] font-gray-100 ${font_header.variable} antialiased`}
       >
         <SearchBar />
         {children}

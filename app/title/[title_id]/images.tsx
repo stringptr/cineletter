@@ -10,9 +10,9 @@ import { tmdb } from "@/services/tmdb.ts";
 import { imdb } from "@/services/imdb.ts";
 
 export async function BannerImages(
-  { tconst }: { tconst: string },
+  { title_id }: { title_id: string },
 ) {
-  const id = await tmdb.idFromImdb(tconst, "movie");
+  const id = await tmdb.idFromImdb(title_id, "movie");
   const data = await tmdb.title.images(id);
 
   if (data !== undefined) {
@@ -20,20 +20,20 @@ export async function BannerImages(
     return (
       <>
         <div
-          className={`z-0 absolute h-[65vh] overflow-hidden shadow-2xl ml-[9%] w-[80%]`}
+          className={`z-0 absolute h-[65vh] overflow-hidden ml-[9%] w-[80%] shadow-none drop-shadow-none`}
         >
           <Image
             fill
             src={`https://image.tmdb.org/t/p/original${banner?.file_path}`}
             alt="BannerBackground"
-            className="object-cover w-full h-full"
+            className="object-cover w-full h-full shadow-none drop-shadow-none"
             priority
           />
 
-          <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-black via-black/60 to-transparent" />
-          <div className="absolute bottom-0 w-full h-40 bg-gradient-to-t from-black via-black/60 to-transparent" />
-          <div className="absolute left-0 h-full w-40 bg-gradient-to-r from-black via-black/60 to-transparent" />
-          <div className="absolute right-0 h-full w-40 bg-gradient-to-l from-black via-black/60 to-transparent" />
+          <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-[#111111] via-[#111111]/70 to-transparent" />
+          <div className="absolute bottom-0 w-full h-40 bg-gradient-to-t from-[#111111] via-[#111111]/70 to-transparent" />
+          <div className="absolute left-0 h-full w-40 bg-gradient-to-r from-[#111111] via-[#111111]/70 to-transparent" />
+          <div className="absolute right-0 h-full w-40 bg-gradient-to-l from-[#111111] via-[#111111]/70 to-transparent" />
         </div>
         <div className="relative pt-[32rem]"></div>
       </>
@@ -42,9 +42,9 @@ export async function BannerImages(
 }
 
 export async function ImagesCarousel(
-  { tconst, type }: { tconst: string; type: string },
+  { title_id, type }: { title_id: string; type: string },
 ) {
-  const data = await imdb.getImages(tconst);
+  const data = await imdb.getImages(title_id);
 
   const images = data?.images?.filter((img: any) => img.type === type);
 

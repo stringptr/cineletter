@@ -1,14 +1,34 @@
-import sql from "mssql";
-import { dbPool } from "@/db/index.ts";
+import * as db from "@/db/index.ts";
 
-export async function getOneUserByID(id: string) {
-  const pool = await dbPool;
-  const result = await pool
-    .request()
-    .input("id", sql.VarChar, id)
-    .query("SELECT TOP 1 * FROM Auth.[USER] u WHERE u.ID = @id");
+export async function getByID(id: number) {
+  const result = await db.guest
+    .selectFrom("APP.USERS")
+    .selectAll()
+    .where("user_id", "=", id)
+    .limit(1)
+    .executeTakeFirst();
 
   return result;
+}
+
+export async function checkUsernameAvailability(username: string) {
+  const exists = await db.guest
+    .selectFrom("APP.USERS")
+    .select((eb) => eb.lit(1).as("exists"))
+    .where("username", "=", username.toLowerCase())
+    .executeTakeFirst();
+
+  return !exists;
+}
+
+export async function checkEmailAvailability(email: string) {
+  const exists = await db.guest
+    .selectFrom("APP.USERS")
+    .select((eb) => eb.lit(1).as("exists"))
+    .where("email", "=", email.toLowerCase())
+    .executeTakeFirst();
+
+  return !exists;
 }
 
 export async function createUser(

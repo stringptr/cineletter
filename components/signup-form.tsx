@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import { GalleryVerticalEnd } from "lucide-react";
 
@@ -66,9 +67,9 @@ export function SignupForm({
       case "not-created":
         return "Fail to create account. Please try again.";
       case "error":
-        return "Something wrong happened. Please try again.";
+        return ("Something wrong happened. Please try again.");
       default:
-        return "default";
+        return "";
     }
   }
 
@@ -76,24 +77,23 @@ export function SignupForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <a
+          <div className="flex flex-col items-center gap-2 overflow-hidden">
+            <Link
               href="#"
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="flex size-8 items-center justify-center rounded-md">
                 <GalleryVerticalEnd className="size-6" />
               </div>
-              <span className="sr-only">Satria's Weirdness</span>
-            </a>
+            </Link>
 
             <h1 className="text-xl font-bold">Everyone is welcomed</h1>
 
             <div className="text-center text-sm">
               An old friend?{" "}
-              <a href="/login" className="underline underline-offset-4">
+              <Link href="/auth/login" className="underline underline-offset-4">
                 Go here
-              </a>
+              </Link>
             </div>
             <ErrorNotice />
           </div>
@@ -170,7 +170,7 @@ export function SignupForm({
 
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
         By signing up and login, you agree to
-        be<a href="https://www.linuxatemyram.com">my dear audience</a>
+        be<Link href="https://www.linuxatemyram.com">my dear audience</Link>
         {" "}
       </div>
     </div>

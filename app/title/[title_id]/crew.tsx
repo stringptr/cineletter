@@ -1,15 +1,17 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useState } from "react";
 import { imdb } from "@/services/imdb.ts";
 
-export function Crew({ tconst }: { tconst: string }) {
+export function Crew({ title_id }: { title_id: string }) {
   const [data, setData] = useState<any>(null);
   const [showCrew, setShowCrew] = useState("creative");
 
   useEffect(() => {
-    imdb.getDetails(tconst).then(setData);
-  }, [tconst]);
+    imdb.getDetails(title_id).then(setData);
+  }, [title_id]);
 
   if (!data) return <p>Loading...</p>;
 
@@ -45,34 +47,34 @@ export function Crew({ tconst }: { tconst: string }) {
       <div className="flex flex-row flex-wrap gap-2">
         {showCrew === "actors" &&
           data.stars?.map((person: any) => (
-            <a
+            <Link
               href={`/crew/${person.id}`}
               key={person.id}
               className="border-1 px-2 py-1 rounded-sm hover:bg-white hover:text-black"
             >
               {person.displayName}
-            </a>
+            </Link>
           ))}
         {showCrew === "creative" &&
           data.writers?.map((person: any) => (
-            <a
+            <Link
               href={`/crew/${person.id}`}
               key={person.id}
               className="border-1 px-2 py-1 rounded-sm hover:bg-white hover:text-black"
             >
               {person.displayName}
-            </a>
+            </Link>
           ))}
         {showCrew === "genres" &&
           data.interests.filter((interest: any) => interest.isSubgenre === true)
             .map((interest: any) => (
-              <a
+              <Link
                 href={`/subgenre/${interest.id}`}
                 key={interest.id}
                 className="border-1 px-2 py-1 rounded-sm hover:bg-white hover:text-black"
               >
                 {interest.name}
-              </a>
+              </Link>
             ))}
       </div>
     </div>

@@ -1,14 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
 import { imdb } from "@/services/imdb.ts";
 import { getImagePalette } from "@/lib/palette-gen.ts";
 
-export async function PrimaryPoster({ tconst }: { tconst: string }) {
-  const data = await imdb.getDetails(tconst);
+export async function PrimaryPoster({ title_id }: { title_id: string }) {
+  const data = await imdb.getDetails(title_id);
 
   if (data !== null) {
     return (
       <div className="flex flex-row m-0 p-0 relative">
-        <a href={data.primaryImage.url} target="_blank">
+        <Link href={data.primaryImage.url} target="_blank">
           <Image
             src={data.primaryImage.url}
             alt={data.primaryTitle}
@@ -16,7 +17,7 @@ export async function PrimaryPoster({ tconst }: { tconst: string }) {
             height={data.primaryImage.height}
             className="rounded-md m-0 w-[300px] h-auto object-contain cursor-zoom-in"
           />
-        </a>
+        </Link>
       </div>
     );
   } else {
@@ -28,8 +29,8 @@ export async function PrimaryPoster({ tconst }: { tconst: string }) {
   }
 }
 
-export async function Titles({ tconst }: { tconst: string }) {
-  const data = await imdb.getDetails(tconst);
+export async function Titles({ title_id }: { title_id: string }) {
+  const data = await imdb.getDetails(title_id);
   const palette = await getImagePalette(data.primaryImage.url);
 
   if (data !== null) {
@@ -48,12 +49,12 @@ export async function Titles({ tconst }: { tconst: string }) {
           <h3 className={`ml-[5px] relative p-0 m-0 font-normal text-xl`}>
             Directed by
           </h3>
-          <a
+          <Link
             href={`/crew/${data.directors[0].id}`}
             className={`b-1 border-b ml-[5px] relative p-0 m-0 font-normal text-xl`}
           >
             {data.directors[0].displayName}
-          </a>
+          </Link>
         </div>
       </>
     );
@@ -66,8 +67,8 @@ export async function Titles({ tconst }: { tconst: string }) {
   }
 }
 
-export async function Details({ tconst }: { tconst: string }) {
-  const data = await imdb.getDetails(tconst);
+export async function Details({ title_id }: { title_id: string }) {
+  const data = await imdb.getDetails(title_id);
 
   if (data !== null) {
     return (

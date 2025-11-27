@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import { tmdb } from "@/services/tmdb.ts";
 import { imdb } from "@/services/imdb.ts";
@@ -11,32 +12,32 @@ export default async function Page(
     return <div className="text-white">No results found.</div>;
   }
   const results = data.results;
-  const tconsts = await Promise.all(
-    results.map((item: any) => tmdb.title.tconstFromId(item.id)),
+  const title_ids = await Promise.all(
+    results.map((item: any) => tmdb.title.title_idFromId(item.id)),
   );
   const imdb_data = await Promise.all(
-    tconsts.map((item: any) => imdb.getDetails(item)),
+    title_ids.map((item: any) => imdb.getDetails(item)),
   );
   const combined = results.map((item: any, idx: number) => ({
     ...item,
-    tconst: tconsts[idx],
+    title_id: title_ids[idx],
     imdb_data: imdb_data[idx],
   }));
 
   return (
     <div className="text-white flex flex-col items-center gap-12">
       {combined.map((item: any) => (
-        <a
+        <Link
           key={item.id}
-          href={`/title/${item.tconst}`}
+          href={`/title/${item.title_id}`}
           className={`${
-            item.tconst === null ? "hidden" : "flex"
+            item.title_id === null ? "hidden" : "flex"
           } group flex-row gap-8 w-[50vw] mx-auto overflow-hidden`}
         >
           <Image
             width={200}
             height={200}
-            src={item?.imdb_data?.primaryImage?.url}
+            src={item?.imdb_data?.primaryImage?.url ?? null}
             alt={item.original_title}
             className="overflow-hidden min-w-[200px] rounded-sm"
           />
@@ -48,7 +49,7 @@ export default async function Page(
               {item?.imdb_data?.plot}
             </p>
           </div>
-        </a>
+        </Link>
       ))}
     </div>
   );

@@ -9,11 +9,15 @@ const TMDB_KEY = process.env.TMDB_API_KEY;
 
 async function fetchTmdb(
   endpoint1: string,
-  endpoint2?: string,
+  endpoint2?: string | null,
+  tags?: string | null,
   options: RequestInit = {},
 ) {
   const url = `${TMDB_BASE}${endpoint1}?api_key=${TMDB_KEY}${endpoint2 ?? ""}`;
-  const res = await fetch(url, { ...options, next: { revalidate: 3600 } });
+  const res = await fetch(url, {
+    ...options,
+    next: { revalidate: 3600, tags: [tags] },
+  });
 
   if (!res.ok) {
     console.error(`TMDB Error: ${res.status} ${res.statusText} from ${url}`);

@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { randomUUID } from "node:crypto";
 import * as userQuery from "@/db/queries/user.ts";
+import * as db from "@/db/index.ts";
 
 export async function userSignup(
   id: string,
