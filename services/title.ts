@@ -12,7 +12,28 @@ export async function getImages(title_id: string) {
 
 export async function getDetails(title_id: string) {
   const res = await title.getDetails(title_id);
+
   return res;
+}
+
+export async function titleSearch(
+  searched: string,
+  page: number | null,
+  page_size: number | null,
+  sort_by: string | null,
+  invert_sort: boolean | null,
+  genre: string | null,
+  type: string | null,
+) {
+  return await title.titleSearch(
+    searched,
+    page,
+    page_size,
+    sort_by,
+    invert_sort,
+    genre,
+    type,
+  );
 }
 
 export async function getTmdbTitle(tconst: string) {

@@ -1,13 +1,20 @@
-import { Inter } from "next/font/google";
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
-import SearchBar from "@/components/search-bar.tsx";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-const font_header = Inter({
-  variable: "--font-header",
+const poppins = Poppins({
   subsets: ["latin"],
-  weight: "variable",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
+
+export const metadata: Metadata = {
+  title: "DBMSATRIA",
+  description: "Website project by Satria and Vio for Movies & Tv-Shows Database",
+};
 
 export default function RootLayout({
   children,
@@ -16,11 +23,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`bg-[#111111] font-gray-100 ${font_header.variable} antialiased`}
-      >
-        <SearchBar />
-        {children}
+      <body className={`${poppins.variable} antialiased font-sans`}>
+        {/* Navbar di semua halaman */}
+        <Navbar />
+
+        {/* Halaman utama (Home, Movies, TV-Show, dll) */}
+        <main className="min-h-screen pt-20 bg-gradient-to-b from-[#050621] to-[#0b0c40]">
+          {children}
+        </main>
+
+        {/* Footer di semua halaman */}
+        <Footer />
       </body>
     </html>
   );

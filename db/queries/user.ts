@@ -1,92 +1,91 @@
+import * as bcrypt from "@felix/bcrypt";
+import { sql } from "kysely";
+import { z } from "zod";
 import * as db from "@/db/index.ts";
+import prepareContext from "../context.ts";
 
-export async function getByID(id: number) {
-  const result = await db.guest
-    .selectFrom("APP.USERS")
-    .selectAll()
-    .where("user_id", "=", id)
-    .limit(1)
-    .executeTakeFirst();
+export const existSchema = z.object({
+  exist: z.boolean(),
+  error_code: z.string().nullable(),
+  type: z.string().nullable(),
+});
 
-  return result;
+export async function exist(credential: string) {
+  const compiled = sql`
+  EXEC APP.spCredentialExist ${credential};
+`.compile(db.guest);
+
+  const result = await db.guest.executeQuery<z.infer<typeof existSchema>>(
+    compiled,
+  );
+  const row = result.rows?.[0];
+
+  if (row.error_code === "NOT_FOUND") {
+    throw new Error("NOT_FOUND");
+  }
+  if (!row) {
+    throw new Error("UNKNOWN");
+  }
+
+  const validated = existSchema.parse(row);
+  return validated;
 }
 
-export async function checkUsernameAvailability(username: string) {
-  const exists = await db.guest
-    .selectFrom("APP.USERS")
-    .select((eb) => eb.lit(1).as("exists"))
-    .where("username", "=", username.toLowerCase())
-    .executeTakeFirst();
-
-  return !exists;
-}
-
-export async function checkEmailAvailability(email: string) {
-  const exists = await db.guest
-    .selectFrom("APP.USERS")
-    .select((eb) => eb.lit(1).as("exists"))
-    .where("email", "=", email.toLowerCase())
-    .executeTakeFirst();
-
-  return !exists;
-}
-
-export async function createUser(
-  id: string,
+export async function signup(
+  email: string,
   name: string,
-  hashedPassword: string,
+  username: string,
+  hashed_password: string,
 ) {
-  try {
-    const pool = await dbPool;
-    const result = await pool
-      .request()
-      .input("id", sql.VarChar, id)
-      .input("name", sql.NVarChar, name)
-      .input("hashedPassword", sql.VarChar, hashedPassword)
-      .query(
-        "INSERT INTO Auth.[USER] (ID, Name, Password) VALUES (@id, @name, @hashedPassword);",
-      );
-
-    if (result.rowsAffected[0] === 1) {
-      return { success: true, error: "" };
-    } else {
-      return { success: false, error: "not-created" };
-    }
-  } catch (err: any) {
-    return { success: false, error: "error" };
-  }
 }
 
-export async function createSession(
-  id: string,
-  expireDate: Date,
-  sessionID: string,
-) {
-  try {
-    const pool = await dbPool;
-    const result = await pool
-      .request()
-      .input("id", sql.VarChar, id)
-      .input("sessionID", sql.Text, sessionID)
-      .input("date", sql.Date, expireDate)
-      .query("INSERT INTO Auth.[Session] VALUES (@id, @sessionID, @date)");
+export const sessionCreateSchema = z.object({
+  success: z.boolean(),
+  error_code: z.string().nullable(),
+  message: z.string().nullable(),
+});
 
-    if (result.rowsAffected[0] === 1) {
-      return { success: true, error: "" };
-    } else {
-      return { success: false, error: "not-created" };
-    }
-  } catch (err: any) {
-    return { success: false, error: "error" };
+export async function sessionCreate(
+  user_id: string,
+  session_id: string,
+) {
+  const compiled = sql`
+      EXEC APP.UserSessionCreate ${user_id} ${session_id};
+    `.compile(db.guest);
+
+  prepareContext();
+  const result = await db.guest.executeQuery<
+    z.infer<typeof sessionCreateSchema>
+  >(compiled);
+  const parsed_result = sessionCreateSchema.parse(result.rows[0]);
+
+  if (!parsed_result.success) {
+    throw new Error("FAIL");
   }
+
+  return parsed_result;
 }
 
-export async function getUserByIDRegex(id: string) {
-  const pool = await dbPool;
-  const result = await pool
-    .request()
-    .input("id", sql.VarChar, id)
-    .query("SELECT * FROM Auth.[USER] u WHERE u.ID = %@id%");
+export const authInfoSchema = z.object({
+  username: z.string(),
+  email: z.string(),
+  user_id: z.string(),
+  hashed_password: z.string(),
+});
 
-  return result;
+export async function authInfoGet(
+  credential: string,
+  credential_type: string,
+) {
+  const compiled = sql`
+      EXEC APP.spAuthInfoGet ${credential}, ${credential_type};
+    `.compile(db.guest);
+
+  const result = await db.guest.executeQuery<z.infer<typeof authInfoSchema>>(
+    compiled,
+  );
+  const data = result?.rows[0];
+  const parsed_data = authInfoSchema.parse(data);
+
+  return parsed_data;
 }

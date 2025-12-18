@@ -1,6 +1,6 @@
 import { tmdb } from "./tmdb.ts";
 
-async function getTitle(id: string, type: "/images" | "/videos" | null) {
+async function getTitle(id: string, type: "/images" | "/videos" | "") {
   return await tmdb.fetch(`/movie/${id}${type}`);
 }
 
@@ -16,7 +16,7 @@ async function tconstFromId(id: string) {
 export const title = {
   images: (id: string) => getTitle(id, "/images"),
   videos: (id: string) => getTitle(id, "/videos"),
-  details: (id: string) => getTitle(id, null),
+  details: (id: string) => getTitle(id, ""),
   search,
   tconstFromId,
 };

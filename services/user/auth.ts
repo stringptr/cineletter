@@ -1,45 +1,51 @@
 import bcrypt from "bcrypt";
-import { randomUUID } from "node:crypto";
-import * as userQuery from "@/db/queries/user.ts";
-import * as db from "@/db/index.ts";
+import { uuidv7 } from "uuidv7";
+import * as user from "@/db/queries/user.ts";
 
-export async function userSignup(
-  id: string,
+export async function signup(
+  email: string,
+  username: string,
   name: string,
   password: string,
 ) {
-  const exist = await userQuery.getOneUserByID(id);
+  const email_exist = await user.exist(email);
+  const username_exist = await user.exist(username);
 
-  if (exist.recordset.length > 0) {
-    return { success: false, error: "taken" };
+  if (username_exist.exist && email_exist.exist) {
+    throw new Error("BOTH_EXIST");
+  }
+  if (email_exist.exist) {
+    throw new Error("EMAIL_EXIST");
+  }
+  if (username_exist.exist) {
+    throw new Error("USERNAME_EXIST");
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const res = await userQuery.createUser(id, name, hashedPassword);
+  const res = await user.signup(email, name, username, bcrypt.hash(password));
   return res;
 }
 
-export async function userLogin(
-  id: string,
+export async function login(
+  credential: string,
   password: string,
 ) {
-  const exist = await userQuery.getOneUserByID(id);
+  const exist = await user.exist(credential);
 
-  if (exist.recordset.length > 0) {
-    return { success: false, error: "not-found" };
+  if (!exist.exist) {
+    throw new Error("NOT_FOUND");
   }
 
-  const isPasswordCorrect = await bcrypt.compare(
-    password,
-    exist.output.hashedPassword,
+  const auth_info = await user.authInfoGet(credential, exist.type);
+
+  const is_password_correct = await bcrypt.compare(
+    bcrypt.hash(password),
+    auth_info.hashed_password,
   );
 
-  if (!isPasswordCorrect) return ({ success: false, error: "wrong-password" });
+  if (!is_password_correct) {
+    throw new Error("WRONG_PASSWORD");
+  }
 
-  const expireDate = new Date(Date.now() + 1000 * 60 * 60 + 24 * 7);
-  const sessionID = randomUUID();
-
-  const res = await userQuery.createSession(id, expireDate, sessionID);
+  const res = await user.sessionCreate(auth_info.user_id, uuidv7());
   return res;
 }

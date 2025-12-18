@@ -16,7 +16,7 @@ async function fetchTmdb(
   const url = `${TMDB_BASE}${endpoint1}?api_key=${TMDB_KEY}${endpoint2 ?? ""}`;
   const res = await fetch(url, {
     ...options,
-    next: { revalidate: 3600, tags: [tags] },
+    next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
@@ -41,7 +41,7 @@ async function idFromImdb(tconst: string, type: "person" | "movie" | "tv") {
     case "person":
       return await res.person_results[0].id;
     case "movie":
-      return await res.movie_results[0].id;
+      return await res?.movie_results[0]?.id;
     case "tv":
       return await res.tv_results[0].id;
     default:

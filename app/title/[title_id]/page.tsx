@@ -1,73 +1,34 @@
-import { Metadata } from "next";
-import process from "node:process";
-import { guest, testConnection } from "@/db/index.ts";
+"use client";
 
-import { BannerImages, ImagesCarousel } from "./images.tsx";
-import { Details, PrimaryPoster, Titles } from "./titles.tsx";
-import { Crew } from "./crew.tsx";
-import { imdb } from "@/services/imdb.ts";
+import { useParams } from "next/navigation";
+import useSWR from "swr";
+import DetailMovie from "@/components/DetailMovie";
 
-export default async function Page(
-  { params }: { params: Promise<{ title_id: string }> },
-) {
-  await testConnection(guest, "guest");
-  const { title_id } = await params;
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Not found");
+    return res.json();
+  });
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/title/${title_id}`,
-    {
-      cache: "force-cache",
-      next: { tags: [`title-${title_id}`] },
-    },
+export default function MovieDetailPage() {
+  const { title_id } = useParams<{ title_id: string }>();
+
+  const { data, error, isLoading } = useSWR(
+    title_id ? `/api/title/${title_id}` : null,
+    fetcher,
   );
 
-  const { data } = await res.json();
-  return (
-    <div>{{ data }}</div>
-    //   <div className="px-auto w-full text-white">
-    //     <BannerImages title_id={params.title_id} />
-    //     <div className="grid grid-cols-2 gap-20 w-[80vw]">
-    //       <div className="ml-auto max-w-content pt-4">
-    //         <PrimaryPoster title_id={params.title_id} />
-    //       </div>
-    //       <div className="mr-auto flex flex-col w-[600px]">
-    //         <Titles title_id={params.title_id} />
-    //         <div className="mt-8 ml-[5px] flex flex-col gap-8">
-    //           <Details title_id={params.title_id} />
-    //           <Crew title_id={params.title_id} />
-    //           <ImagesCarousel title_id={params.title_id} type="poster" />
-    //           <ImagesCarousel title_id={params.title_id} type="still_frame" />
-    //           <ImagesCarousel
-    //             title_id={params.title_id}
-    //             type="behind_the_scenes"
-    //           />
-    //           <ImagesCarousel title_id={params.title_id} type="event" />
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-  );
+  if (isLoading) {
+    return <p className="text-white text-center py-20">Loading…</p>;
+  }
+
+  if (error || !data?.success) {
+    return (
+      <p className="text-white text-center py-20">
+        Movie not found
+      </p>
+    );
+  }
+
+  return <DetailMovie movie={data.data} />;
 }
-
-// export async function generateMetadata(
-//   { params }: { params: { title_id: string } },
-// ): Promise<Metadata> {
-//   const movie = await imdb.getDetails(params.title_id);
-//
-//   if (!movie || (!movie.title && !movie.original_title)) {
-//     return {
-//       title: "Title not found | CineCatalogue",
-//       description: "Title not found.",
-//     };
-//   }
-//
-//   return {
-//     title: `${movie.title} | CineCatalogue`,
-//     description: movie.plot || "No description available.",
-//     openGraph: {
-//       title: movie.primaryTitle,
-//       description: movie.plot,
-//       images: [movie.image],
-//     },
-//   };
-// }
