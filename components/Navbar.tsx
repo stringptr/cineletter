@@ -12,6 +12,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [hasExecutiveRole, setHasExecutiveRole] = useState(false);
   const [showEditSearch, setShowEditSearch] = useState(false);
   const [editSearch, setEditSearch] = useState("");
 
@@ -45,6 +46,39 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkRole() {
+      try {
+        const res = await fetch("/api/auth/role", {
+          credentials: "include",
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        const roles = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.roles)
+          ? data.roles
+          : null;
+
+        if (!cancelled && roles && roles.length > 0) {
+          setHasExecutiveRole(true);
+        }
+      } catch {
+        // silent fail = no executive UI
+      }
+    }
+
+    checkRole();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   return (
     <>
       {/* NAVBAR */}
@@ -91,45 +125,51 @@ export default function Navbar() {
             ))}
 
             {/* Executive Dropdown */}
-            <div className="relative select-none" ref={dropdownRef}>
-              <div
-                onClick={() => setShowDropdown((prev) => !prev)}
-                className={`flex items-center gap-1 text-sm cursor-pointer transition ${
-                  showDropdown
-                    ? "text-[#ff1212]"
-                    : "text-white hover:text-[#ffffffb3]"
-                }`}
-              >
-                Executive Only
-                <ChevronDown
-                  className={`w-4 h-4 transform transition-transform ${
-                    showDropdown ? "rotate-180" : "rotate-0"
+
+            {hasExecutiveRole && (
+              <div className="relative select-none" ref={dropdownRef}>
+                <div
+                  onClick={() =>
+                    setShowDropdown((prev) =>
+                      !prev
+                    )}
+                  className={`flex items-center gap-1 text-sm cursor-pointer transition ${
+                    showDropdown
+                      ? "text-[#ff1212]"
+                      : "text-white hover:text-[#ffffffb3]"
                   }`}
-                />
-              </div>
-
-              {showDropdown && (
-                <div className="absolute mt-2 right-0 bg-[#0f0f3a] border border-[#ffffff1a] rounded-lg shadow-lg w-40 py-2 z-50">
-                  <Link
-                    href="/executive/dashboard"
-                    className="flex items-center no-underline gap-2 px-4 py-2 text-sm text-white hover:bg-[#1b1b5a] transition"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    <LayoutDashboard className="w-4 h-4" /> Dashboard
-                  </Link>
-
-                  <div
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-[#1b1b5a] transition cursor-pointer"
-                    onClick={() => {
-                      setShowEditSearch(true);
-                      setShowDropdown(false);
-                    }}
-                  >
-                    <Edit className="w-4 h-4" /> Edit Data
-                  </div>
+                >
+                  Executive Only
+                  <ChevronDown
+                    className={`w-4 h-4 transform transition-transform ${
+                      showDropdown ? "rotate-180" : "rotate-0"
+                    }`}
+                  />
                 </div>
-              )}
-            </div>
+
+                {showDropdown && (
+                  <div className="absolute mt-2 right-0 bg-[#0f0f3a] border border-[#ffffff1a] rounded-lg shadow-lg w-40 py-2 z-50">
+                    <Link
+                      href="/executive/dashboard"
+                      className="flex items-center no-underline gap-2 px-4 py-2 text-sm text-white hover:bg-[#1b1b5a] transition"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      <LayoutDashboard className="w-4 h-4" /> Dashboard
+                    </Link>
+
+                    <div
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-[#1b1b5a] transition cursor-pointer"
+                      onClick={() => {
+                        setShowEditSearch(true);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <Edit className="w-4 h-4" /> Edit Data
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Search */}
             <div className="relative hidden sm:block ml-4">

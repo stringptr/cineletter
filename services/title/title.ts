@@ -1,5 +1,5 @@
 import { imdb } from "../external/imdb.ts";
-import * as title from "@/db/queries/title.ts";
+import * as title from "@/db/queries/title/title.ts";
 import prepareContext from "../../db/context.ts";
 
 export async function getDetails(title_id: string) {

@@ -1,0 +1,11 @@
+# bunfig.toml
+[install]
+# Use hardlinks for faster installs
+auto = "hardlink"
+
+# Cache packages globally
+cache = true
+
+[run]
+# Bun-specific optimizations
+bun = true
