@@ -1,6 +1,3 @@
 {
-  "imports": {
-    "@felix/bcrypt": "jsr:@felix/bcrypt@^1.0.8",
-    "@std/dotenv": "jsr:@std/dotenv@^0.225.5",
-  }
+  "allowScripts": ["npm:bcrypt@6.0.0", "npm:sharp@0.34.5", "npm:unrs-resolver@1.11.1"]
 }

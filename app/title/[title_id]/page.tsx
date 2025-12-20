@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import useSWR from "swr";
-import DetailMovie from "@/components/DetailMovie";
+import DetailMovie from "@/components/DetailMovie.tsx";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {

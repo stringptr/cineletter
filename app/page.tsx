@@ -10,26 +10,80 @@ export default function HomePage() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const movies = [
-    { id: 1, title: "Wicked", rating: "9.3", poster: "/wicked.jpg", slug: "wicked" },
-    { id: 2, title: "Wicked: For Good", rating: "0.0", poster: "/wicked_fg.jpg", slug: "wicked-for-good" },
-    { id: 3, title: "Alice in Wonderland", rating: "9.0", poster: "/alice.jpg", slug: "alice-in-wonderland" },
-    { id: 4, title: "The Nutcracker", rating: "9.2", poster: "/nutcracker.jpg", slug: "the-nutcracker" },
-    { id: 5, title: "Barbie", rating: "9.5", poster: "/barbie.jpg", slug: "barbie" },
-    { id: 6, title: "Beauty and the Beast", rating: "9.8", poster: "/beautyandthebeast.jpg", slug: "beauty-and-the-beast" },
+    {
+      id: 1,
+      title: "Wicked",
+      rating: "9.3",
+      poster: "/wicked.jpg",
+      slug: "wicked",
+    },
+    {
+      id: 2,
+      title: "Wicked: For Good",
+      rating: "0.0",
+      poster: "/wicked_fg.jpg",
+      slug: "wicked-for-good",
+    },
+    {
+      id: 3,
+      title: "Alice in Wonderland",
+      rating: "9.0",
+      poster: "/alice.jpg",
+      slug: "alice-in-wonderland",
+    },
+    {
+      id: 4,
+      title: "The Nutcracker",
+      rating: "9.2",
+      poster: "/nutcracker.jpg",
+      slug: "the-nutcracker",
+    },
+    {
+      id: 5,
+      title: "Barbie",
+      rating: "9.5",
+      poster: "/barbie.jpg",
+      slug: "barbie",
+    },
+    {
+      id: 6,
+      title: "Beauty and the Beast",
+      rating: "9.8",
+      poster: "/beautyandthebeast.jpg",
+      slug: "beauty-and-the-beast",
+    },
   ];
 
   const infoBoxes = [
-    { title: "About Us", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
-    { title: "Our Mission", text: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
-    { title: "Top Genres", text: "Action, Drama, Comedy, Sci-Fi, Romance, Thriller." },
-    { title: "Community", text: "Join our community of movie lovers around the world." },
-    { title: "Latest News", text: "Stay updated with the latest in entertainment." },
-    { title: "Support", text: "Need help? Reach out to our support team anytime." },
+    {
+      title: "About Us",
+      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    },
+    {
+      title: "Our Mission",
+      text:
+        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    },
+    {
+      title: "Top Genres",
+      text: "Action, Drama, Comedy, Sci-Fi, Romance, Thriller.",
+    },
+    {
+      title: "Community",
+      text: "Join our community of movie lovers around the world.",
+    },
+    {
+      title: "Latest News",
+      text: "Stay updated with the latest in entertainment.",
+    },
+    {
+      title: "Support",
+      text: "Need help? Reach out to our support team anytime.",
+    },
   ];
 
   return (
     <main className="text-white min-h-screen">
-
       {/* HERO SECTION */}
       <section className="relative -mt-20 h-[95vh] flex flex-col items-center justify-center text-center overflow-hidden">
         <Image
@@ -39,8 +93,12 @@ export default function HomePage() {
           className="object-cover opacity-30"
         />
         <div className="relative z-10">
-          <h1 className="text-6xl font-bold mb-6 drop-shadow-lg">Welcome to DBMSATRIA</h1>
-          <p className="text-gray-300 mb-8 text-lg">Discover. Watch. Share your favorite movies.</p>
+          <h1 className="text-6xl font-bold mb-6 drop-shadow-lg">
+            Welcome to DBMSATRIA
+          </h1>
+          <p className="text-gray-300 mb-8 text-lg">
+            Discover. Watch. Share your favorite movies.
+          </p>
 
           {/* BUTTON OPEN MODAL */}
           <button
@@ -70,7 +128,9 @@ export default function HomePage() {
                 className="object-cover w-full h-full group-hover:opacity-40 transition"
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                <h3 className="text-2xl font-semibold text-white">{movie.title}</h3>
+                <h3 className="text-2xl font-semibold text-white">
+                  {movie.title}
+                </h3>
                 <div className="flex text-2xl items-center mt-1 text-yellow-400">
                   <Star className="w-4 h-4 mr-1" />
                   <span>{movie.rating}</span>
@@ -99,7 +159,7 @@ export default function HomePage() {
 
       {/* MODAL — langsung pakai modalmu */}
       <AuthModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
-
     </main>
   );
 }
+

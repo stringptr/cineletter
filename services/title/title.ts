@@ -1,5 +1,4 @@
-import { imdb } from "./imdb.ts";
-import { tmdb } from "./tmdb.ts";
+import { imdb } from "../imdb.ts";
 import * as title from "@/db/queries/title.ts";
 
 export async function getImages(title_id: string) {
@@ -16,7 +15,7 @@ export async function getDetails(title_id: string) {
   return res;
 }
 
-export async function titleSearch(
+export async function search(
   searched: string,
   page: number | null,
   page_size: number | null,

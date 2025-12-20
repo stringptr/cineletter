@@ -1,4 +1,4 @@
-import { titleSearch } from "@/services/title.ts";
+import { search } from "@/services/title/title.ts";
 
 export async function GET(
   req: Request,
@@ -7,7 +7,7 @@ export async function GET(
   try {
     const urlParams = new URL(req.url).searchParams;
 
-    const data = await titleSearch(
+    const data = await search(
       params.searched,
       Number(urlParams.get("page")) || 1,
       Number(urlParams.get("page_size")) || 20,

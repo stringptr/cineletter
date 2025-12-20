@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Search, User, ChevronDown, Edit, LayoutDashboard } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Edit, LayoutDashboard, Search, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import AuthModal from "@/components/AuthModal"; // <<— MODAL RESMI
+import AuthNavClient from "./AuthNavClient.tsx";
 
 export default function Navbar() {
   const [search, setSearch] = useState("");
@@ -21,9 +22,7 @@ export default function Navbar() {
 
   const menuItems = [
     { name: "Home", path: "/" },
-    { name: "Movies", path: "/movies" },
-    { name: "TV-Show", path: "/tv-show" },
-    { name: "Genre", path: "/genre" },
+    { name: "Titles", path: "/title" },
     { name: "Person", path: "/person" },
   ];
 
@@ -35,7 +34,10 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowDropdown(false);
       }
     };
@@ -93,7 +95,9 @@ export default function Navbar() {
               <div
                 onClick={() => setShowDropdown((prev) => !prev)}
                 className={`flex items-center gap-1 text-sm cursor-pointer transition ${
-                  showDropdown ? "text-[#ff1212]" : "text-white hover:text-[#ffffffb3]"
+                  showDropdown
+                    ? "text-[#ff1212]"
+                    : "text-white hover:text-[#ffffffb3]"
                 }`}
               >
                 Executive Only
@@ -136,25 +140,22 @@ export default function Navbar() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => {
-                if (e.key === "Enter" && search.trim() !== "") {
-                  router.push(`/movies/search/${encodeURIComponent(search.trim())}`);
-                  setSearch("");
-                }
-              }}
+                  if (e.key !== "Enter") return;
+
+                  const q = search.trim();
+                  if (!q) return;
+
+                  const params = new URLSearchParams();
+
+                  router.push(`/search/title/${encodeURIComponent(q)}`);
+                }}
                 className="bg-[#ffffff0d] border border-[#ffffff1a] text-white placeholder-[#aaa] text-sm rounded-full pl-9 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#ffffff40] focus:border-[#ffffff40] transition-all w-44 hover:w-56"
               />
             </div>
           </div>
 
           {/* RIGHT: Auth Trigger */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setShowAuth(true)}>
-            <span className="hidden sm:inline text-white hover:text-[#ffffffb3] text-sm transition">
-              Sign Up / Log In
-            </span>
-            <div className="w-9 h-9 rounded-full bg-[#ffffff1a] hover:bg-[#ffffff33] flex items-center justify-center transition">
-              <User className="w-5 h-5 text-white" />
-            </div>
-          </div>
+          <AuthNavClient />
         </div>
       </nav>
 
@@ -169,7 +170,9 @@ export default function Navbar() {
               ✕
             </button>
 
-            <h2 className="text-2xl font-semibold mb-6 text-center">Search Movie to Edit</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-center">
+              Search Movie to Edit
+            </h2>
 
             <input
               type="text"
@@ -183,7 +186,11 @@ export default function Navbar() {
               className="w-full bg-[#121ec4] hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition"
               onClick={() => {
                 if (editSearch.trim() !== "") {
-                  router.push(`/executive/edit/list?search=${encodeURIComponent(editSearch)}`);
+                  router.push(
+                    `/executive/edit/list?search=${
+                      encodeURIComponent(editSearch)
+                    }`,
+                  );
                   setShowEditSearch(false);
                   setEditSearch("");
                 }
@@ -197,7 +204,6 @@ export default function Navbar() {
 
       {/* POPUP AUTH — MODAL RESMI DARI COMPONENTS */}
       <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
-
     </>
   );
 }

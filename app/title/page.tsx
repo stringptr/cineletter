@@ -17,8 +17,7 @@ export default function MoviesPage() {
       rating: 8.8,
       year: 2010,
       genre: "Sci-Fi",
-      poster:
-        "/posters/wicked.jpg",
+      poster: "/posters/wicked.jpg",
     },
     {
       id: 2,
@@ -26,8 +25,7 @@ export default function MoviesPage() {
       rating: 8.6,
       year: 2014,
       genre: "Sci-Fi",
-      poster:
-        "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqoNMq13X3QpV7.jpg",
+      poster: "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqoNMq13X3QpV7.jpg",
     },
     {
       id: 3,
@@ -35,8 +33,7 @@ export default function MoviesPage() {
       rating: 9.0,
       year: 2008,
       genre: "Action",
-      poster:
-        "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
     },
   ];
 
@@ -168,3 +165,4 @@ function FilterDropdown({
     </div>
   );
 }
+

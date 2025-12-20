@@ -12,16 +12,17 @@ export async function signup(
   const username_exist = await user.exist(username);
 
   if (username_exist.exist && email_exist.exist) {
-    throw new Error("BOTH_EXIST");
+    throw new Error("both-exist");
   }
   if (email_exist.exist) {
-    throw new Error("EMAIL_EXIST");
+    throw new Error("email-exist");
   }
   if (username_exist.exist) {
-    throw new Error("USERNAME_EXIST");
+    throw new Error("username_exist");
   }
 
-  const res = await user.signup(email, name, username, bcrypt.hash(password));
+  const hashed = bcrypt.hashSync(password, 12)
+  const res = await user.signup(email, name, username, Buffer.from(hashed));
   return res;
 }
 
@@ -32,20 +33,21 @@ export async function login(
   const exist = await user.exist(credential);
 
   if (!exist.exist) {
-    throw new Error("NOT_FOUND");
+    throw new Error("not-found");
   }
 
   const auth_info = await user.authInfoGet(credential, exist.type);
 
   const is_password_correct = await bcrypt.compare(
-    bcrypt.hash(password),
-    auth_info.hashed_password,
+    password,
+    auth_info.hashed_password.toString("utf8"),
   );
 
   if (!is_password_correct) {
     throw new Error("WRONG_PASSWORD");
   }
 
-  const res = await user.sessionCreate(auth_info.user_id, uuidv7());
-  return res;
+  const session_id = uuidv7();
+  const res = await user.sessionCreate(auth_info.user_id, session_id);
+return {...res, ...(res.success ? { session_id } : {})};
 }

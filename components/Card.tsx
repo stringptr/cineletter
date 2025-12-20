@@ -1,46 +1,92 @@
 import Link from "next/link";
+import { searchDetail } from "@/types/title";
 
-export default function Card({ title, genre, year, poster, director, description }: any) {
-  const slug = title.toLowerCase().replace(/\s+/g, "-");
+type CardProps = {
+  title_data: searchDetail;
+};
+
+export default function Card({ title_data }: CardProps) {
+  const {
+    title_id,
+    title,
+    tagline,
+    overview,
+    rate_count,
+    average_rating,
+    start_year,
+    type,
+    relevance,
+    title_akas,
+  } = title_data;
 
   return (
-    <div className="flex bg-[#ffffff] backdrop-blur-sm rounded-xl shadow-md overflow-hidden w-full max-w-4xl hover:scale-[1.02] transition-transform duration-300">
-      {/* Poster di kiri */}
-      <img
-        src={poster}
-        alt={title}
-        className="w-48 h-64 object-cover flex-shrink-0"
-      />
-
-      {/* Detail di kanan */}
-      <div className="px-5 pb-5 pt-0 flex flex-col text-[#08092e]">
-        <div>
-          {/* Judul clickable */}
-          <Link href={`/movies/${slug}`} className="no-underline cursor-pointer">
-            <h3 className="font-bold text-4xl mt-5 mb-1 text-[#f00707] hover:text-[#ff6b6b]">
-              {title}
-            </h3>
-          </Link>
-
-          <p className="text-md text-gray-700 mb-3">
-            {year} • Directed by <span className="font-semibold">{director}</span>
-          </p>
-          <p className="text-gray-800 text-sm leading-relaxed mb-4">{description}</p>
+    <Link
+      href={`/title/${title_id}`}
+      className="no-underline group"
+    >
+      <div className="flex gap-5 py-6 border-b border-white/10 hover:bg-white/5 transition">
+        {/* POSTER */}
+        <div className="w-20 flex-shrink-0">
+          <div className="aspect-[2/3] bg-[#1a1a5a] rounded-md overflow-hidden shadow">
+            <img
+              src={`/posters/${title_id}.jpg`}
+              alt={title ?? "Untitled"}
+              className="w-full h-full object-cover"
+              // onError={(e) => {
+              //   e.currentTarget.src = "/placeholder-poster.jpg";
+              // }}
+            />
+          </div>
         </div>
 
-        {/* Genre section */}
-        <div className="flex flex-wrap gap-2 mt-auto">
-          {genre.map((g: string, index: number) => (
-            <Link
-              key={index}
-              href={`/genre/${g.toLowerCase()}`}
-              className="no-underline cursor-pointer bg-[#121463] text-white px-3 py-1 rounded-full text-md hover:bg-[#0929ab] transition"
-            >
-              {g}
-            </Link>
-          ))}
+        {/* DETAILS */}
+        <div className="flex flex-col gap-2 text-white max-w-3xl">
+          {/* TITLE LINE */}
+          <div className="flex flex-wrap items-baseline gap-2">
+            <h3 className="text-xl font-semibold group-hover:text-[#ff6b6b] transition">
+              {title ?? "Untitled"}
+            </h3>
+            {start_year && (
+              <span className="text-white/50 text-lg">
+                {start_year}
+              </span>
+            )}
+          </div>
+
+          {/* AKA TITLES */}
+          {title_akas?.length > 0 && (
+            <p className="text-sm text-white/60 line-clamp-2">
+              Alternative titles: {title_akas
+                .slice(0, 4)
+                .map((a) => a.title)
+                .join(", ")}
+              {title_akas.length > 4 && " …"}
+            </p>
+          )}
+
+          {/* META */}
+          <div className="flex items-center gap-4 text-sm text-white/60">
+            <span className="capitalize">{type}</span>
+
+            <span className="flex items-center gap-1 text-yellow-400 font-medium">
+              ★ {average_rating?.toFixed(1) ?? "—"}
+            </span>
+
+            {rate_count && (
+              <span>
+                {rate_count.toLocaleString()} ratings
+              </span>
+            )}
+          </div>
+
+          {/* TAGLINE / OVERVIEW */}
+          {(tagline || overview) && (
+            <p className="text-sm text-white/70 line-clamp-2">
+              {tagline ?? overview}
+            </p>
+          )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -89,6 +89,8 @@ export async function getDetails(title_id: string) {
 export const searchSchema = z.object({
   title_id: z.string(),
   title: z.string().nullable().default(null),
+  overview: z.string().nullable().default(null),
+  tagline: z.string().nullable().default(null),
   rate_count: z.number().nullable().default(null),
   average_rating: z.number().nullable().default(null),
   start_year: z.number().nullable().default(null),

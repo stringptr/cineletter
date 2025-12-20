@@ -1,4 +1,4 @@
-import * as title from "@/services/title.ts";
+import * as title from "@/services/title/title.ts";
 
 export async function GET(
   _req: Request,

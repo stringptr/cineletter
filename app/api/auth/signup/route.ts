@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { userSignup } from "@/services/user.ts";
+import { signup } from "@/services/user/auth.ts";
 
 export async function POST(req: Request) {
-  const { id, name, password } = await req.json();
+  const {email, username, name, password} = await req.json();
 
-  const res = await userSignup(id, name, password);
+  const res = await signup(email, username, name, password);
 
   return NextResponse.json(res);
 }

@@ -6,7 +6,7 @@ export default async function prepareContext() {
   const cookieStore = await cookies();
   const headerStore = await headers();
 
-  const sessionId = cookieStore.get("session_id")?.value || null;
+  const sessionId = cookieStore.get("session")?.value ?? null;
   const userAgent = headerStore.get("user-agent") || null;
 
   const forwardedFor = headerStore.get("x-forwarded-for");

@@ -1,3 +1,5 @@
+import AuthModalRoot from "@/components/AuthModalRoot";
+
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -13,7 +15,8 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "DBMSATRIA",
-  description: "Website project by Satria and Vio for Movies & Tv-Shows Database",
+  description:
+    "Website project by Satria and Vio for Movies & Tv-Shows Database",
 };
 
 export default function RootLayout({
@@ -30,6 +33,7 @@ export default function RootLayout({
         {/* Halaman utama (Home, Movies, TV-Show, dll) */}
         <main className="min-h-screen pt-20 bg-gradient-to-b from-[#050621] to-[#0b0c40]">
           {children}
+          <AuthModalRoot />
         </main>
 
         {/* Footer di semua halaman */}
