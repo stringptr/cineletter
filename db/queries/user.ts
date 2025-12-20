@@ -2,7 +2,7 @@ import * as bcrypt from "bcrypt";
 import { sql } from "kysely";
 import { z } from "zod";
 import * as db from "@/db/index.ts";
-import prepareContext from "../context.ts";
+import prepareContext, { withDbContext } from "../context.ts";
 
 export const generalSuccessSchema = z.object({
   success: z.boolean(),
@@ -42,42 +42,42 @@ export async function signup(
   username: string,
   hashed_password: Buffer,
 ) {
-  const compiled = sql`
-      EXEC APP.spUserSignup ${email}, ${name}, ${username}, ${hashed_password};
-    `.compile(db.guest);
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
+      sql`
+        EXEC APP.spUserSignup ${email}, ${name}, ${username}, ${hashed_password};
+    `.compile(trx),
+    );
 
-  prepareContext();
-  const result = await db.guest.executeQuery<
-    z.infer<typeof generalSuccessSchema>
-  >(compiled);
-  const parsed_result = generalSuccessSchema.parse(result.rows[0]);
+    const parsed_result = generalSuccessSchema.parse(result.rows[0]);
 
-  if (!parsed_result.success) {
-    throw new Error("FAIL");
-  }
+    if (!parsed_result.success) {
+      throw new Error("FAIL");
+    }
 
-  return parsed_result;
+    return parsed_result;
+  });
 }
 
 export async function sessionCreate(
   user_id: string,
   session_id: string,
 ) {
-  const compiled = sql`
-      EXEC APP.spUserSessionCreate ${user_id}, ${session_id};
-    `.compile(db.guest);
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
+      sql`
+        EXEC APP.spUserSessionCreate ${user_id}, ${session_id};
+    `.compile(trx),
+    );
 
-  prepareContext();
-  const result = await db.guest.executeQuery<
-    z.infer<typeof generalSuccessSchema>
-  >(compiled);
-  const parsed_result = generalSuccessSchema.parse(result.rows[0]);
+    const data = generalSuccessSchema.parse(result.rows[0]);
 
-  if (!parsed_result.success) {
-    throw new Error("FAIL");
-  }
+    if (!data.success) {
+      throw new Error("FAIL");
+    }
 
-  return parsed_result;
+    return data;
+  });
 }
 
 export const authInfoSchema = z.object({
@@ -91,17 +91,18 @@ export async function authInfoGet(
   credential: string,
   credential_type: string,
 ) {
-  const compiled = sql`
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery<z.infer<typeof authInfoSchema>>(
+      sql`
       EXEC APP.spUserAuthInfoGet ${credential}, ${credential_type};
-    `.compile(db.guest);
+    `.compile(trx),
+    );
 
-  const result = await db.guest.executeQuery<z.infer<typeof authInfoSchema>>(
-    compiled,
-  );
-  const data = result?.rows[0];
-  const parsed_data = authInfoSchema.parse(data);
+    const data = result?.rows[0];
+    const parsed_data = authInfoSchema.parse(data);
 
-  return parsed_data;
+    return parsed_data;
+  });
 }
 
 export const detailsSchema = z.object({
@@ -115,16 +116,16 @@ export const detailsSchema = z.object({
 });
 
 export async function detailsGet() {
-  await prepareContext();
-  const compiled = sql`
-      EXEC APP.spUserDetailsGet
-    `.compile(db.guest);
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery<z.infer<typeof detailsSchema>>(
+      sql`EXEC APP.spUserDetailsGet`.compile(trx),
+    );
 
-  const result = await db.guest.executeQuery<z.infer<typeof detailsSchema>>(
-    compiled,
-  );
-  const data = result?.rows[0];
-  const parsed_data = detailsSchema.parse(data);
+    if (!result?.rows || result.rows.length === 0) {
+      return null;
+    }
 
-  return parsed_data;
+    const data = result.rows[0];
+    return detailsSchema.parse(data);
+  });
 }
