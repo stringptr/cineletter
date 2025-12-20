@@ -11,7 +11,7 @@ async function createDialect(username: string, password: string) {
       options: {
         min: 0,
         max: 20,
-        idleTimeoutMillis: 120000,
+        idleTimeoutMillis: 12000000,
       },
     },
     tedious: {

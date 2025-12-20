@@ -115,16 +115,16 @@ export const detailsSchema = z.object({
 });
 
 export async function detailsGet() {
-  prepareContext();
-  // const compiled = sql`
-  //     EXEC APP.spUserDetailsGet
-  //   `.compile(db.guest);
-  //
-  // const result = await db.guest.executeQuery<z.infer<typeof detailsSchema>>(
-  //   compiled,
-  // );
-  // const data = result?.rows[0];
-  // const parsed_data = detailsSchema.parse(data);
-  //
-  // return parsed_data;
+  await prepareContext();
+  const compiled = sql`
+      EXEC APP.spUserDetailsGet
+    `.compile(db.guest);
+
+  const result = await db.guest.executeQuery<z.infer<typeof detailsSchema>>(
+    compiled,
+  );
+  const data = result?.rows[0];
+  const parsed_data = detailsSchema.parse(data);
+
+  return parsed_data;
 }

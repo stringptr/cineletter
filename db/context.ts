@@ -14,7 +14,6 @@ export default async function prepareContext() {
 
   const compiled = sql`
     EXEC APP.spPrepareContext ${sessionId}, ${userIp}, ${userAgent};
-    EXEC APP.spTestContext;
     `.compile(db.guest);
 
   await db.guest.executeQuery(compiled);

@@ -8,7 +8,8 @@ export async function POST(req: Request) {
   const res = await login(credential, password);
 
   if (res.success) {
-    cookies().set({
+    const cookieStore = await cookies();
+    cookieStore.set({
       name: "session",
       value: res.session_id,
       httpOnly: true,
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
-    })
+    });
   }
 
   return NextResponse.json(res);

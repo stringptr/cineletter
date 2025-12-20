@@ -9,7 +9,7 @@ export default function AuthNavClient() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/user/details")
+    fetch("/api/user/detail")
       .then(async (r) => {
         console.log("Response status:", r.status);
         console.log("Response ok:", r.ok);
