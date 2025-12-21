@@ -1,14 +1,8 @@
-import * as bcrypt from "bcrypt";
 import { sql } from "kysely";
 import { z } from "zod";
 import * as db from "@/db/index.ts";
-import prepareContext, { withDbContext } from "../context.ts";
-
-export const generalSuccessSchema = z.object({
-  success: z.boolean(),
-  error_code: z.string().nullable(),
-  message: z.string().nullable(),
-});
+import { withDbContext } from "@/db/context.ts";
+import { generalSuccessSchema } from "@/schemas/common.ts";
 
 export const userSessionCreateSchema = z.object({
   success: z.boolean(),

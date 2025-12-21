@@ -1,37 +1,28 @@
 import { sql } from "kysely";
 
 import { z } from "zod";
-import * as db from "@/db/index.ts";
 import { withDbContext } from "@/db/context.ts";
+import { titleCompleteSchema } from "@/schemas/title/base.ts";
+import { generalSuccessSchema } from "@/schemas/common.ts";
+import * as titleUpdateSchemas from "@/schemas/title/update.ts";
 
-export const spResultSchema = z.object({
-  success: z.boolean(),
-  error_code: z.string().nullable(),
-  message: z.string().nullable(),
-});
-
-export type SpResult = z.infer<typeof spResultSchema>;
-export const titleUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  title: z.string(),
-  original_title: z.string(),
-  tagline: z.string(),
-  overview: z.string(),
-  type: z.string().max(15),
-  is_adult: z.boolean(),
-  popularity: z.number(),
-  status: z.string().max(32),
-  season_number: z.number().int().nullable(),
-  episode_number: z.number().int().nullable(),
-  runtime_minute: z.number().int().nullable(),
-  start_year: z.number().int().nullable(),
-  end_year: z.number().int().nullable(),
-});
-
-export async function titleUpdate(
-  input: z.infer<typeof titleUpdateSchema>,
+export async function completeDataGet(
+  title_id: string,
 ) {
-  titleUpdateSchema.parse(input);
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery(
+      sql`
+        EXEC APP.spTitleCompleteDataGet ${title_id}
+      `.compile(trx),
+    );
+
+    return titleCompleteSchema.parse(result.rows[0]);
+  });
+}
+export async function titleUpdate(
+  input: z.infer<typeof titleUpdateSchemas.titleUpdateSchema>,
+) {
+  titleUpdateSchemas.titleUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -54,20 +45,14 @@ export async function titleUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }
 
-export const titleGenreUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  genres_old: z.string().max(15),
-  genres_new: z.string().max(15),
-});
-
 export async function titleGenreUpdate(
-  input: z.infer<typeof titleGenreUpdateSchema>,
+  input: z.infer<typeof titleUpdateSchemas.titleGenreUpdateSchema>,
 ) {
-  titleGenreUpdateSchema.parse(input);
+  titleUpdateSchemas.titleGenreUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -79,25 +64,14 @@ export async function titleGenreUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }
 
-export const titleAkaUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  ordering: z.number().int(),
-  title: z.string(),
-  region: z.string().max(4).nullable(),
-  language: z.string().max(4).nullable(),
-  type: z.string().max(64).nullable(),
-  attributes: z.string().max(64).nullable(),
-  is_original_title: z.boolean(),
-});
-
 export async function titleAkaUpdate(
-  input: z.infer<typeof titleAkaUpdateSchema>,
+  input: z.infer<typeof titleUpdateSchemas.titleAkaUpdateSchema>,
 ) {
-  titleAkaUpdateSchema.parse(input);
+  titleUpdateSchemas.titleAkaUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -114,22 +88,14 @@ export async function titleAkaUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }
 
-export const titleLinkUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  link_type_old: z.string().max(15),
-  link_old: z.string().max(480),
-  link_type_new: z.string().max(15),
-  link_new: z.string().max(480),
-});
-
 export async function titleLinkUpdate(
-  input: z.infer<typeof titleLinkUpdateSchema>,
+  input: z.infer<typeof titleUpdateSchemas.titleLinkUpdateSchema>,
 ) {
-  titleLinkUpdateSchema.parse(input);
+  titleUpdateSchemas.titleLinkUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -143,20 +109,14 @@ export async function titleLinkUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }
 
-export const titleNetworkUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  network_id_old: z.string().max(15),
-  network_id_new: z.string().max(15),
-});
-
 export async function titleNetworkUpdate(
-  input: z.infer<typeof titleNetworkUpdateSchema>,
+  input: z.infer<typeof titleUpdateSchemas.titleNetworkUpdateSchema>,
 ) {
-  titleNetworkUpdateSchema.parse(input);
+  titleUpdateSchemas.titleNetworkUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -168,22 +128,14 @@ export async function titleNetworkUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }
 
-export const titleRegionUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  production_region_code_old: z.string().max(4),
-  origin_region_code_old: z.string().max(4),
-  production_region_code_new: z.string().max(4),
-  origin_region_code_new: z.string().max(4),
-});
-
 export async function titleRegionUpdate(
-  input: z.infer<typeof titleRegionUpdateSchema>,
+  input: z.infer<typeof titleUpdateSchemas.titleRegionUpdateSchema>,
 ) {
-  titleRegionUpdateSchema.parse(input);
+  titleUpdateSchemas.titleRegionUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -197,20 +149,14 @@ export async function titleRegionUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }
 
-export const titleSpokenLanguageUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  spoken_language_id_old: z.number().int(),
-  spoken_language_id_new: z.number().int(),
-});
-
 export async function titleSpokenLanguageUpdate(
-  input: z.infer<typeof titleSpokenLanguageUpdateSchema>,
+  input: z.infer<typeof titleUpdateSchemas.titleSpokenLanguageUpdateSchema>,
 ) {
-  titleSpokenLanguageUpdateSchema.parse(input);
+  titleUpdateSchemas.titleSpokenLanguageUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -222,20 +168,14 @@ export async function titleSpokenLanguageUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }
 
-export const titleLanguageUpdateSchema = z.object({
-  title_id: z.string().max(15),
-  language_code_old: z.number().int(),
-  language_code_new: z.number().int(),
-});
-
 export async function titleLanguageUpdate(
-  input: z.infer<typeof titleLanguageUpdateSchema>,
+  input: z.infer<typeof titleUpdateSchemas.titleLanguageUpdateSchema>,
 ) {
-  titleLanguageUpdateSchema.parse(input);
+  titleUpdateSchemas.titleLanguageUpdateSchema.parse(input);
 
   return withDbContext(async (trx) => {
     const result = await trx.executeQuery(
@@ -247,6 +187,6 @@ export async function titleLanguageUpdate(
       `.compile(trx),
     );
 
-    return spResultSchema.parse(result.rows[0]);
+    return generalSuccessSchema.parse(result.rows[0]);
   });
 }

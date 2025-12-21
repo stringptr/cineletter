@@ -1,28 +1,72 @@
 import { sql } from "kysely";
 import { z } from "zod";
-import * as db from "@/db/index.ts";
-import prepareContext from "@/db/context.ts";
+import { withDbContext } from "@/db/context.ts";
 
-export const companySchema = z.object({
+export const companyRolesSchema = z.object({
   is_active: z.boolean().default(false),
   company_id: z.number(),
   type: z.enum(["marketing", "executive"]),
 }).nullable();
 
 export async function company() {
-  await prepareContext();
-  const compiled = sql`
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery(
+      sql`
       EXEC APP.spUserRolesCompanyGet;
-    `.compile(db.guest);
+    `.compile(trx),
+    );
 
-  const result = await db.guest.executeQuery<z.infer<typeof companySchema>>(
-    compiled,
-  );
+    if (result !== null) {
+      const data = result.rows.map((r) => companyRolesSchema.parse(r));
+      return data;
+    }
 
-  if (result.length >= 1) {
-    const data = result.rows.map((r) => companySchema.parse(r));
-    return data;
-  }
+    return [];
+  });
+}
 
-  return [];
+export const databaseRolesSchema = z.object({
+  is_active: z.boolean().default(false),
+  type: z.enum(["data", "company_roles"]),
+}).nullable();
+
+export async function database() {
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery(
+      sql`
+      EXEC APP.spUserRolesDatabaseGet;
+    `.compile(trx),
+    );
+
+    if (result !== null) {
+      const data = result.rows.map((r) => databaseRolesSchema.parse(r));
+      return data;
+    }
+
+    return [];
+  });
+}
+
+export async function rolesGet() {
+  return withDbContext(async (trx) => {
+    const [dbResult, companyResult] = await Promise.all([
+      trx.executeQuery(sql`EXEC APP.spUserRolesDatabaseGet;`.compile(trx)),
+      trx.executeQuery(sql`EXEC APP.spUserRolesCompanyGet;`.compile(trx)),
+    ]);
+
+    // Helper to safely parse rows and filter out failures or nulls
+    const safeMap = (rows, schema) => {
+      if (!rows) return [];
+
+      return rows
+        .map((r) => schema.safeParse(r))
+        .filter((result) => result.success && result.data !== null)
+        .map((result) => result.data);
+    };
+
+    const database = safeMap(dbResult?.rows, databaseRolesSchema);
+    const company = safeMap(companyResult?.rows, companyRolesSchema);
+
+    return { database, company };
+  });
 }

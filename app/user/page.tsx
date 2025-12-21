@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type UserDetail = {
   user_id: number;
@@ -14,6 +14,7 @@ type UserDetail = {
 };
 
 export default function UserProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<UserDetail | null>(null);
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,14 @@ export default function UserProfilePage() {
   const [name, setName] = useState("");
   const [gender, setGender] = useState<string | null>(null);
   const [description, setDescription] = useState("");
+
+  async function logout() {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+
+    setUser(null);
+  }
 
   useEffect(() => {
     fetch("/api/user/detail")
@@ -80,6 +89,9 @@ export default function UserProfilePage() {
       {!edit && (
         <div className="space-y-3">
           <p>
+            <span className="opacity-60">Username:</span> {user.username ?? "—"}
+          </p>
+          <p>
             <span className="opacity-60">Name:</span> {user.name ?? "—"}
           </p>
           <p>
@@ -92,6 +104,12 @@ export default function UserProfilePage() {
           <p className="text-xs opacity-40">
             Joined {new Date(user.created_at).toLocaleDateString()}
           </p>
+          <button
+            onClick={logout}
+            className="px-4 py-1 mt-10 rounded-md bg-[#ffffff1a] hover:bg-[#ffffff2a]"
+          >
+            Log Out
+          </button>
         </div>
       )}
 
