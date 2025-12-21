@@ -5,6 +5,7 @@ import { withDbContext } from "@/db/context.ts";
 export const companyRolesSchema = z.object({
   is_active: z.boolean().default(false),
   company_id: z.number(),
+  company_name: z.string(),
   type: z.enum(["marketing", "executive"]),
 }).nullable();
 
