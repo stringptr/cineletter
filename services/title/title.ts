@@ -52,3 +52,8 @@ export async function getTmdbTitle(tconst: string) {
   const data = await res.json();
   return { success: true, error: "", data: data };
 }
+
+export async function completeDataGet(title_id: string) {
+  const res = await title.getCompleteData(title_id);
+  return res;
+}

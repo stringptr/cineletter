@@ -1,4 +1,5 @@
-import { z } from "zod"
+import { z } from "zod";
+
 import {
   titleAkaUpdateSchema,
   titleGenreUpdateSchema,
@@ -10,77 +11,68 @@ import {
   titleUpdateSchema,
 } from "@/schemas/title/update.ts";
 
-import {
-  updateTitle,
-  updateTitleAka,
-  updateTitleGenre,
-  updateTitleLanguage,
-  updateTitleLink,
-  updateTitleNetwork,
-  updateTitleRegion,
-  updateTitleSpokenLanguage,
-} from "@/db/queries/title/update.ts";
+import * as updateQueries from "@/db/queries/title/update.ts";
 
 /* =========================
    MAIN TITLE UPDATE
 ========================= */
-export async function updateTitleService(input: z.infer<typeof >) {
+export async function updateTitle(input: z.infer<typeof titleUpdateSchema>) {
   const data = titleUpdateSchema.parse(input);
-  return updateTitle(data);
+  return updateQueries.updateTitle(data);
 }
 
 /* =========================
    GENRE
 ========================= */
-export async function updateTitleGenreService(input: unknown) {
+export async function updateTitleGenre(input: unknown) {
   const data = titleGenreUpdateSchema.parse(input);
-  return updateTitleGenre(data);
+  return updateQueries.updateTitleGenre(data);
 }
 
 /* =========================
    AKA
 ========================= */
-export async function updateTitleAkaService(input: unknown) {
+export async function updateTitleAka(input: unknown) {
   const data = titleAkaUpdateSchema.parse(input);
-  return updateTitleAka(data);
+  return updateQueries.updateTitleAka(data);
 }
 
 /* =========================
    LINK
 ========================= */
-export async function updateTitleLinkService(input: unknown) {
+export async function updateTitleLink(input: unknown) {
   const data = titleLinkUpdateSchema.parse(input);
-  return updateTitleLink(data);
+  return updateQueries.updateTitleLink(data);
 }
 
 /* =========================
    NETWORK
 ========================= */
-export async function updateTitleNetworkService(input: unknown) {
+export async function updateTitleNetwork(input: unknown) {
   const data = titleNetworkUpdateSchema.parse(input);
-  return updateTitleNetwork(data);
+  return updateQueries.updateTitleNetwork(data);
 }
 
 /* =========================
    REGION
 ========================= */
-export async function updateTitleRegionService(input: unknown) {
+export async function updateTitleRegion(input: unknown) {
   const data = titleRegionUpdateSchema.parse(input);
-  return updateTitleRegion(data);
+  return updateQueries.updateTitleRegion(data);
 }
 
 /* =========================
    SPOKEN LANGUAGE
 ========================= */
-export async function updateTitleSpokenLanguageService(input: unknown) {
+export async function updateTitleSpokenLanguage(input: unknown) {
   const data = titleSpokenLanguageUpdateSchema.parse(input);
-  return updateTitleSpokenLanguage(data);
+  return updateQueries.updateTitleSpokenLanguage(data);
 }
 
 /* =========================
    LANGUAGE
 ========================= */
-export async function updateTitleLanguageService(input: unknown) {
+export async function updateTitleLanguage(input: unknown) {
   const data = titleLanguageUpdateSchema.parse(input);
-  return updateTitleLanguage(data);
+  return updateQueries.updateTitleLanguage(data);
 }

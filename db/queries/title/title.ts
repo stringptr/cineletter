@@ -3,6 +3,7 @@ import { sql } from "kysely";
 import { withDbContext } from "@/db/context.ts";
 import { z } from "zod";
 import * as schemas from "@/schemas/title/main.ts";
+import * as base_schemas from "@/schemas/title/base.ts";
 
 export async function getDetails(title_id: string) {
   return withDbContext(async (trx) => {
@@ -50,5 +51,18 @@ export async function titleSearch(
     );
 
     return parsed;
+  });
+}
+
+export async function getCompleteData(title_id: string) {
+  return withDbContext(async (trx) => {
+    const result = await trx.executeQuery<
+      z.infer<typeof base_schemas.titleCompleteSchema>
+    >(sql`
+        EXEC APP.spTitleCompleteDataGet ${title_id};
+    `.compile(trx));
+
+    console.log(JSON.parse(result.rows[0].data));
+    return JSON.parse(result?.rows?.[0]?.data);
   });
 }

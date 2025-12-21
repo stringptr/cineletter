@@ -56,11 +56,11 @@ export const titleLanguageSchema = z.object({
 
 export const titleCompleteSchema = z.object({
   title: titleSchema,
-  title_akas: z.array(titleAkaSchema),
-  title_genres: z.array(titleGenreSchema),
-  title_links: z.array(titleLinkSchema),
-  title_networks: z.array(titleNetworkSchema),
-  title_regions: z.array(titleRegionSchema),
-  title_spoken_languages: z.array(titleSpokenLanguageSchema),
-  title_languages: z.array(titleLanguageSchema),
+  title_akas: z.array(titleAkaSchema).nullable(),
+  title_genres: z.array(titleGenreSchema).nullable(),
+  title_links: z.array(titleLinkSchema).nullable(),
+  title_networks: z.array(titleNetworkSchema).nullable(),
+  title_regions: z.array(titleRegionSchema).nullable(),
+  title_spoken_languages: z.array(titleSpokenLanguageSchema).nullable(),
+  title_languages: z.array(titleLanguageSchema).nullable(),
 });
