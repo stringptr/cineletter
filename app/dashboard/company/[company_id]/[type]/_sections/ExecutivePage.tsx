@@ -1,4 +1,5 @@
 "use client";
+import { notFound } from "next/navigation";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -38,30 +39,37 @@ export default function ExecutiveTitleExplorerPage() {
    * -------------------------------------------*/
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      try {
+        setLoading(true);
 
-      const params = new URLSearchParams({
-        sort_by: sortBy,
-        invert_sort: invertSort ? "1" : "0",
-      });
+        const params = new URLSearchParams({
+          sort_by: sortBy,
+          invert_sort: invertSort ? "1" : "0",
+        });
 
-      if (search) params.set("q", search);
-      if (genre) params.set("genre", genre);
-      if (type) params.set("type", type);
+        if (search) params.set("q", search);
+        if (genre) params.set("genre", genre);
+        if (type) params.set("type", type);
 
-      const res = await fetch(
-        `/api/company/${companyId}/executive?${params.toString()}`,
-      );
+        const res = await fetch(
+          `/api/company/${companyId}/executive?${params.toString()}`,
+        );
 
-      const json = await res.json();
+        const json = await res.json();
 
-      if (json?.success) {
-        setData(json.data);
-      } else {
-        setData([]);
+        if (json?.success) {
+          setData(json.data);
+        } else {
+          setData([]);
+        }
+
+        setLoading(false);
+      } catch (error: any) {
+        if (error?.number === 50001) {
+          notFound();
+        }
+        console.error("Failed to fetch dashboard data:", error);
       }
-
-      setLoading(false);
     };
 
     fetchData();

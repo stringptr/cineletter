@@ -4,10 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
-  UserCircle,
   ChevronDown,
-  ShieldCheck,
   Search,
+  ShieldCheck,
+  UserCircle,
 } from "lucide-react";
 
 /* =======================
@@ -47,7 +47,7 @@ export default function SelectContextPage() {
 
   const [selectedRole, setSelectedRole] = useState<RoleValue>("");
   const [selectedCompany, setSelectedCompany] = useState<CompanyRole | null>(
-    null
+    null,
   );
 
   const [companySearch, setCompanySearch] = useState("");
@@ -58,18 +58,22 @@ export default function SelectContextPage() {
     fetch("/api/auth/role")
       .then((r) => r.json())
       .then((data: RoleResponse) => setRoles(data))
-      .catch(() => setRoles({ database: [], company: [] }));
+      .catch(() => {
+        setRoles({ database: [], company: [] });
+        router.replace("/");
+        router.refresh();
+      });
   }, []);
 
   /* ---------- DERIVED DATA ---------- */
   const companyRoles = useMemo(
     () => roles?.company.filter((c) => c.is_active) ?? [],
-    [roles]
+    [roles],
   );
 
   const databaseRoles = useMemo(
     () => roles?.database.filter((d) => d.is_active) ?? [],
-    [roles]
+    [roles],
   );
 
   const filteredCompanies = useMemo(() => {
@@ -129,13 +133,13 @@ export default function SelectContextPage() {
 
     setTimeout(() => {
       if (selectedRole === "data") {
-        router.push("/dashboard/database/data");
+        router.push(`/dashboard/database/${selectedRole}`);
         return;
       }
 
       if (selectedCompany) {
         router.push(
-          `/dashboard/${selectedCompany.company_id}/${selectedRole}`
+          `/dashboard/company/${selectedCompany.company_id}/${selectedRole}`,
         );
       }
     }, 600);
@@ -148,7 +152,6 @@ export default function SelectContextPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-[#121212]/90 border border-white/10 rounded-2xl p-8">
-
         {/* HEADER */}
         <div className="text-center mb-8">
           <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
@@ -169,9 +172,7 @@ export default function SelectContextPage() {
           <div className="relative">
             <select
               value={selectedRole}
-              onChange={(e) =>
-                handleRoleChange(e.target.value as RoleValue)
-              }
+              onChange={(e) => handleRoleChange(e.target.value as RoleValue)}
               className="w-full bg-black border border-white/10 text-white rounded-lg px-4 py-3 appearance-none"
             >
               <option value="" disabled>
@@ -210,11 +211,9 @@ export default function SelectContextPage() {
             <input
               disabled={companyDropdownDisabled}
               value={companySearch}
-              placeholder={
-                companyDropdownDisabled
-                  ? "Database role selected"
-                  : "Search company…"
-              }
+              placeholder={companyDropdownDisabled
+                ? "Database role selected"
+                : "Search company…"}
               onChange={(e) => {
                 setCompanySearch(e.target.value);
                 setDropdownOpen(true);
@@ -232,24 +231,26 @@ export default function SelectContextPage() {
 
             {dropdownOpen && !companyDropdownDisabled && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-lg max-h-60 overflow-y-auto z-50">
-                {filteredCompanies.length ? (
-                  filteredCompanies.map((c) => (
-                    <div
-                      key={`${c.company_id}-${c.type}`}
-                      onClick={() => handleSelectCompany(c)}
-                      className="px-4 py-3 text-sm text-gray-300 hover:bg-white/10 cursor-pointer"
-                    >
-                      {c.company_name.trim()}
-                      <span className="ml-2 text-xs text-gray-500">
-                        ({c.type})
-                      </span>
+                {filteredCompanies.length
+                  ? (
+                    filteredCompanies.map((c) => (
+                      <div
+                        key={`${c.company_id}-${c.type}`}
+                        onClick={() => handleSelectCompany(c)}
+                        className="px-4 py-3 text-sm text-gray-300 hover:bg-white/10 cursor-pointer"
+                      >
+                        {c.company_name.trim()}
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({c.type})
+                        </span>
+                      </div>
+                    ))
+                  )
+                  : (
+                    <div className="px-4 py-3 text-gray-500 text-sm">
+                      No company found
                     </div>
-                  ))
-                ) : (
-                  <div className="px-4 py-3 text-gray-500 text-sm">
-                    No company found
-                  </div>
-                )}
+                  )}
               </div>
             )}
           </div>
@@ -257,11 +258,9 @@ export default function SelectContextPage() {
 
         {/* CONTINUE */}
         <button
-          disabled={
-            loading ||
+          disabled={loading ||
             !selectedRole ||
-            (selectedRole !== "data" && !selectedCompany)
-          }
+            (selectedRole !== "data" && !selectedCompany)}
           onClick={handleContinue}
           className="w-full bg-white text-black font-bold py-3 rounded-lg disabled:bg-gray-800 disabled:text-gray-500"
         >

@@ -27,13 +27,21 @@ export default function UserProfilePage() {
   async function logout() {
     await fetch("/api/auth/logout", {
       method: "POST",
+      cache: "no-store",
     });
 
     setUser(null);
+    setName("");
+    setGender(null);
+    setDescription("");
+    router.replace("/");
+    router.refresh();
   }
 
   useEffect(() => {
-    fetch("/api/user/detail")
+    fetch("/api/user/detail", {
+      cache: "no-store",
+    })
       .then(async (r) => {
         const text = await r.text();
         if (!r.ok) {
@@ -106,6 +114,7 @@ export default function UserProfilePage() {
           </p>
           <button
             onClick={logout}
+            onSubmit={logout}
             className="px-4 py-1 mt-10 rounded-md bg-[#ffffff1a] hover:bg-[#ffffff2a]"
           >
             Log Out

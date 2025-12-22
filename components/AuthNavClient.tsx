@@ -16,7 +16,7 @@ export default function AuthNavClient() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/user/detail")
+    fetch("/api/user/detail", { cache: "no-store" })
       .then(async (r) => {
         if (!r.ok) return null;
         const text = await r.text();
@@ -57,7 +57,7 @@ export default function AuthNavClient() {
 
   /* ---------- LOGGED IN ---------- */
   return (
-    <Link className="flex items-center gap-2" href={`/user/${user.username}`}>
+    <Link className="flex items-center gap-2" href={`/user`}>
       <div className="w-9 h-9 rounded-full bg-[#ffffff33] flex items-center justify-center">
         <User className="w-5 h-5 text-white" />
       </div>
