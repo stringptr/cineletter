@@ -64,3 +64,7 @@ export const titleCompleteSchema = z.object({
   title_spoken_languages: z.array(titleSpokenLanguageSchema).nullable(),
   title_languages: z.array(titleLanguageSchema).nullable(),
 });
+
+export const attributesSchema = z.array(
+  z.string(),
+);

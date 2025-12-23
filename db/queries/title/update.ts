@@ -1,6 +1,6 @@
 import { sql } from "kysely";
 import { z } from "zod";
-import { withDbContext } from "@/db/context";
+import withDbContext from "@/db/context.ts";
 
 import {
   titleAkaUpdateSchema,
@@ -11,7 +11,7 @@ import {
   titleRegionUpdateSchema,
   titleSpokenLanguageUpdateSchema,
   titleUpdateSchema,
-} from "@/schemas/title/update";
+} from "@/schemas/title/update.ts";
 
 /* -----------------------------------------------------
  * Shared helper

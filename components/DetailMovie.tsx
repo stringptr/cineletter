@@ -1,102 +1,129 @@
+"use client";
+
 import Link from "next/link";
+import { PlayCircle, Star } from "lucide-react";
+import { useState } from "react";
 
 export default function DetailMovie({ movie }: { movie: any }) {
+  const [activeTab, setActiveTab] = useState("details");
+  const [selectedRating, setSelectedRating] = useState(0);
+
+  // --- LINKS ---
   const poster =
     movie.links?.find((l: any) => l.link_type === "poster")?.link ??
-    "/poster-placeholder.jpg";
+      "/poster-placeholder.jpg";
 
   const backdrop =
     movie.links?.find((l: any) => l.link_type === "backdrop")?.link ??
-    poster;
+      poster;
+
+  // --- BASIC META ---
+  const year = movie.start_year &&
+    (movie.end_year
+      ? `${movie.start_year}–${movie.end_year}`
+      : movie.start_year);
+
+  const runtime = movie.runtime_minute ? `${movie.runtime_minute} min` : null;
+
+  const rating = movie.average_rating ? movie.average_rating.toFixed(1) : null;
+
+  // --- TABS ---
+  const tabs = [
+    { id: "details", label: "DETAILS" },
+    { id: "genres", label: "GENRES" },
+    { id: "production", label: "PRODUCTION" },
+    { id: "languages", label: "LANGUAGES" },
+    { id: "regions", label: "REGIONS" },
+  ];
 
   return (
-    <div className="relative min-h-screen text-white overflow-hidden">
-      {/* Base background */}
-      <div className="absolute inset-0 bg-[#0a0a0a]" />
-
-      {/* Backdrop */}
+    <div className="relative min-h-screen text-white overflow-hidden -mt-20">
+      {/* BACKGROUND */}
+      <div className="absolute inset-0 bg-[#0a0a0a] pointer-events-none" />
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none"
         style={{
           backgroundImage: `url(${backdrop})`,
-          WebkitMaskImage:
-            "radial-gradient(circle at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+          backgroundPosition: "center top",
           maskImage:
-            "radial-gradient(circle at center, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          WebkitMaskSize: "100% 100%",
-          maskSize: "100% 100%",
-          opacity: 0.9,
+            "linear-gradient(to bottom, transparent 0%, black 50%, black 85%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0%, black 50%, black 85%, transparent 100%)",
+          opacity: 0.5,
         }}
       />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/60 pointer-events-none" />
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60" />
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col md:flex-row max-w-7xl mx-auto px-6 py-20 gap-10 items-start">
-        {/* LEFT: Poster */}
-        <div className="w-full md:w-1/3 max-w-sm">
+      {/* CONTENT */}
+      <div className="relative z-10 flex flex-col lg:flex-row max-w-7xl mx-auto px-6 pt-40 pb-10 gap-10">
+        {/* LEFT */}
+        <div className="flex flex-col gap-6 w-64 mx-auto lg:mx-0">
           <img
             src={poster}
             alt={movie.title ?? "Poster"}
-            className="w-full rounded-2xl shadow-2xl"
+            className="w-full rounded-xl shadow-lg"
           />
 
-          {(movie.networks?.length > 0 || movie.production_companies?.length > 0) && (
-            <div className="mt-6 bg-[#101010cc] backdrop-blur-md p-4 rounded-xl border border-[#ffffff1a]">
-              <h3 className="text-lg font-semibold mb-2">Production</h3>
-              <ul className="text-sm text-gray-200 space-y-1">
+          {(movie.networks?.length > 0 ||
+            movie.production_companies?.length > 0) && (
+            <div className="bg-[#1a1a1a]/80 backdrop-blur-md p-4 rounded-xl border border-white/10">
+              <h3 className="text-xs font-bold text-gray-400 uppercase mb-3">
+                Available / Produced by
+              </h3>
+              <div className="space-y-1 text-sm text-gray-200">
                 {movie.networks?.map((n: any) => (
-                  <li key={n.network_id}>{n.network_name}</li>
+                  <div key={`net-${n.network_id}`}>{n.network_name}</div>
                 ))}
                 {movie.production_companies?.map((c: any) => (
-                  <li key={c.company_id}>{c.company_name}</li>
+                  <div key={`co-${c.company_id}`}>{c.company_name}</div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
         </div>
 
-        {/* RIGHT: Details */}
-        <div className="flex-1 relative z-20 md:pt-10">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+        {/* CENTER */}
+        <div className="flex-1">
+          <h1 className="text-5xl lg:text-6xl font-black mb-4">
             {movie.title}
           </h1>
 
           <div className="flex flex-wrap items-center gap-3 text-gray-300 mb-6">
-            {movie.start_year && <span>{movie.start_year}</span>}
-            {movie.runtime_minute && (
+            {year && <span>{year}</span>}
+            {runtime && (
               <>
                 <span>•</span>
-                <span>{movie.runtime_minute} min</span>
+                <span>{runtime}</span>
               </>
             )}
-            {movie.average_rating && (
+            {rating && (
               <>
                 <span>•</span>
                 <span className="text-yellow-400 font-bold">
-                  ⭐ {movie.average_rating.toFixed(1)}
+                  ⭐ {rating}
                 </span>
               </>
             )}
           </div>
 
           {movie.overview && (
-            <p className="text-gray-200 leading-relaxed mb-8 max-w-2xl drop-shadow-md">
+            <p className="text-gray-300 leading-relaxed mb-8 max-w-3xl">
               {movie.overview}
             </p>
           )}
 
-          {/* Genres */}
+          {/* GENRES QUICK */}
           {movie.genres?.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-8">
               {movie.genres.map((g: string) => (
                 <Link
                   key={g}
-                  href={`/genre/${g.toLowerCase()}`}
-                  className="bg-white/20 text-white px-3 py-1 rounded-full text-xs hover:bg-white/40 transition no-underline"
+                  href={`/title/explore?genre=${
+                    decodeURIComponent(
+                      g.toLowerCase(),
+                    )
+                  }`}
+                  className="bg-[#2a2a2a] px-4 py-1.5 rounded-full text-sm border border-white/10 hover:bg-[#ff3b3b] transition no-underline"
                 >
                   {g}
                 </Link>
@@ -104,17 +131,140 @@ export default function DetailMovie({ movie }: { movie: any }) {
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex gap-4">
-            <button className="bg-[#ff1f1f] text-white px-5 py-2 rounded-lg hover:bg-[#ff6b6b] transition">
-              Add to Watchlist
-            </button>
-            <button className="bg-white/20 px-5 py-2 rounded-lg hover:bg-white/30 transition">
-              Share
+          {/* TABS */}
+          <div className="border-b border-white/20 mb-6 flex gap-2">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
+                className={`px-4 py-2 text-[11px] font-bold rounded-lg tracking-widest ${
+                  activeTab === t.id
+                    ? "bg-[#2a2a2a] text-white border-b-2 border-[#ff3b3b]"
+                    : "bg-[#2a2a2a] text-gray-400 hover:text-white"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* TAB CONTENT */}
+          {activeTab === "details" && (
+            <div className="flex flex-wrap gap-4 text-sm">
+              {movie.status && <Detail label="Status" value={movie.status} />}
+              {movie.type && <Detail label="Type" value={movie.type} />}
+              {movie.season_number && (
+                <Detail label="Seasons" value={movie.season_number} />
+              )}
+              {movie.episode_number && (
+                <Detail label="Episodes" value={movie.episode_number} />
+              )}
+            </div>
+          )}
+
+          {activeTab === "genres" && (
+            <div className="flex flex-wrap gap-2">
+              {movie.genres.map((g: string) => (
+                <span
+                  key={g}
+                  className="px-3 py-1.5 bg-[#2a2a2a] rounded-md border border-white/10 text-sm"
+                >
+                  {g}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "production" && (
+            <div className="flex flex-wrap gap-2">
+              {movie.production_companies.map((c: any) => (
+                <span
+                  key={c.company_id}
+                  className="px-3 py-1.5 bg-[#2a2a2a] rounded-md border border-white/10 text-sm"
+                >
+                  {c.company_name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "languages" && (
+            <div className="flex flex-wrap gap-2">
+              {movie.spoken_languages.map((l: any) => (
+                <span
+                  key={l.spoken_language_id}
+                  className="px-3 py-1.5 bg-[#2a2a2a] rounded-md border border-white/10 text-sm"
+                >
+                  {l.spoken_language_name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "regions" && (
+            <div className="flex flex-wrap gap-2">
+              {movie.regions.map((r: any, i: number) => (
+                <span
+                  key={i}
+                  className="px-3 py-1.5 bg-[#2a2a2a] rounded-md border border-white/10 text-sm"
+                >
+                  {r.code}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT */}
+        <div className="w-full lg:w-72 flex flex-col gap-4">
+          <div className="bg-[#1a1a1a]/60 p-6 rounded-2xl border border-white/10">
+            <h3 className="text-xs font-bold text-gray-400 uppercase mb-2">
+              CineLetter Rating
+            </h3>
+            <div className="flex items-center gap-4">
+              <Star className="w-10 h-10 text-yellow-400 fill-yellow-400" />
+              <span className="text-3xl font-bold">
+                {rating ?? "–"}
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-[#1a1a1a]/60 p-5 rounded-2xl border border-white/10">
+            <h3 className="text-xs font-bold text-[#ff3b3b] uppercase mb-3">
+              Rate this title
+            </h3>
+            <div className="flex justify-between mb-4">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star
+                  key={s}
+                  onClick={() => setSelectedRating(s)}
+                  className={`w-7 h-7 cursor-pointer ${
+                    s <= selectedRating
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-600"
+                  }`}
+                />
+              ))}
+            </div>
+            <textarea
+              placeholder="Write your review..."
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-sm mb-3 resize-none h-20"
+            />
+            <button className="w-full bg-[#ff3b3b] py-2.5 rounded-lg font-semibold">
+              Add Review
             </button>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: any }) {
+  return (
+    <div className="flex gap-2 bg-white/5 px-3 py-1 rounded-md border border-white/5">
+      <span className="text-gray-500 uppercase text-xs">{label}</span>
+      <span className="text-white text-sm font-medium">{value}</span>
     </div>
   );
 }

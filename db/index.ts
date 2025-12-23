@@ -1,10 +1,10 @@
 import process from "node:process";
-import { Kysely, MssqlDialect, sql } from "kysely";
+import { Kysely, MssqlDialect } from "kysely";
 import * as Tedious from "tedious";
 import * as Tarn from "tarn";
 import { DATABASE } from "./schema.ts";
 
-async function createDialect(username: string, password: string) {
+function createDialect(username: string, password: string) {
   const dialect = new MssqlDialect({
     tarn: {
       ...Tarn,
@@ -56,42 +56,21 @@ async function createDialect(username: string, password: string) {
   return dialect;
 }
 
-export const superAdmin = new Kysely<DATABASE>({
-  dialect: await createDialect(
-    process.env.SUPERADMIN_USER!,
-    process.env.SUPERADMIN_PWD!,
+export const database = new Kysely<DATABASE>({
+  dialect: createDialect(
+    process.env.DB_USER!,
+    process.env.DB_PWD!,
   ),
 });
 
-export const admin = new Kysely<DATABASE>({
-  dialect: await createDialect(
-    process.env.ADMIN_USER!,
-    process.env.ADMIN_PWD!,
-  ),
-});
-
-export const user = new Kysely<DATABASE>({
-  dialect: await createDialect(
-    process.env.USER_USER!,
-    process.env.USER_PWD!,
-  ),
-});
-
-export const guest = new Kysely<DATABASE>({
-  dialect: await createDialect(
-    process.env.GUEST_USER!,
-    process.env.GUEST_PWD!,
-  ),
-});
-
-export async function testConnection(db: Kysely<any>, name: string) {
-  try {
-    const compiled = sql`
-      SELECT 1 AS ok
-    `.compile(guest);
-    await guest.executeQuery(compiled);
-    console.log(`[DB:${name}] ✅ Connection test passed`);
-  } catch (err: any) {
-    console.error(`[DB:${name}] ❌ Connection test failed:`, err.message);
-  }
-}
+// export async function testConnection(db: Kysely<any>, name: string) {
+//   try {
+//     const compiled = sql`
+//       SELECT 1 AS ok
+//     `.compile(database);
+//     await guest.executeQuery(compiled);
+//     console.log(`[DB:${name}] ✅ Connection test passed`);
+//   } catch (err: any) {
+//     console.error(`[DB:${name}] ❌ Connection test failed:`, err.message);
+//   }
+// }

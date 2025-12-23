@@ -28,6 +28,24 @@ export async function search(
   );
 }
 
+export async function explore(
+  page: number | null,
+  page_size: number | null,
+  sort_by: string | null,
+  invert_sort: boolean | null,
+  genre: string | null,
+  type: string | null,
+) {
+  return await title.titleExplore(
+    page,
+    page_size,
+    sort_by,
+    invert_sort,
+    genre,
+    type,
+  );
+}
+
 export async function getImages(title_id: string) {
   const res = await imdb.getImages(title_id);
   if (!res.ok) throw new Error("Failed to fetch images");

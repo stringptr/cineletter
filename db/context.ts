@@ -1,9 +1,10 @@
 import { cookies, headers } from "next/headers";
 import { sql } from "kysely";
-import * as db from "@/db/index.ts";
+import { database } from "./index.ts";
 import { Kysely } from "kysely";
+import { DATABASE } from "./schema.ts";
 
-export default async function prepareContext() {
+export async function prepareContext() {
   const cookieStore = await cookies();
   const headerStore = await headers();
 
@@ -15,13 +16,13 @@ export default async function prepareContext() {
 
   const compiled = sql`
     EXEC APP.spPrepareContext ${sessionId}, ${userIp}, ${userAgent};
-    `.compile(db.guest);
+    `.compile(database);
 
-  await db.guest.executeQuery(compiled);
+  await database.executeQuery(compiled);
 }
 
-export async function withDbContext<T>(
-  fn: (trx: Kysely<any>) => Promise<T>,
+export default async function withDbContext<T>(
+  fn: (trx: Kysely<DATABASE>) => Promise<T>,
 ) {
   const cookieStore = await cookies();
   const headerStore = await headers();
@@ -32,7 +33,7 @@ export async function withDbContext<T>(
   const userIp = forwardedFor ? forwardedFor.split(",")[0].trim() : null;
 
   // ✅ Start transaction - guarantees same connection
-  return db.guest.transaction().execute(async (trx) => {
+  return database.transaction().execute(async (trx) => {
     // Set SESSION_CONTEXT on this connection
     await trx.executeQuery(
       sql`

@@ -1,12 +1,12 @@
 import { sql } from "kysely";
 
-import { withDbContext } from "@/db/context.ts";
+import withDbContext from "@/db/context.ts";
 import { z } from "zod";
 import * as schemas from "@/schemas/title/main.ts";
 import * as base_schemas from "@/schemas/title/base.ts";
 
 export async function getDetails(title_id: string) {
-  return withDbContext(async (trx) => {
+  return await withDbContext(async (trx) => {
     const result = await trx.executeQuery<
       z.infer<typeof schemas.detailsSchema>
     >(sql`
@@ -34,28 +34,48 @@ export async function titleSearch(
   genre: string | null,
   type: string | null,
 ) {
-  return withDbContext(async (trx) => {
+  return await withDbContext(async (trx) => {
     const result = await trx.executeQuery<
-      Array<z.infer<typeof schemas.searchSchema>>
+      z.infer<typeof schemas.searchArraySchema>
+    >(sql`
+        EXEC APP.spSearchTitles @title=${searched}, @page_number=${page}, @page_size=${page_size}, @sort_by=${sort_by}, @invert_sort=${invert_sort}, @genre=${genre}, @type=${type};
+    `.compile(trx));
+
+    const parsed = result.rows.map((r) =>
+      r = {
+        ...r,
+        title_akas: JSON.parse(r.title_akas),
+      }
+    );
+
+    return schemas.searchArraySchema.parse(parsed);
+  });
+}
+
+export async function titleExplore(
+  page: number | null,
+  page_size: number | null,
+  sort_by: string | null,
+  invert_sort: boolean | null,
+  genre: string | null,
+  type: string | null,
+) {
+  return await withDbContext(async (trx) => {
+    const result = await trx.executeQuery<
+      z.infer<typeof schemas.exploreArraySchema>
     >(
       sql`
-        EXEC APP.spSearchTitles @title=${searched}, @page_number=${page}, @page_size=${page_size}, @sort_by=${sort_by}, @invert_sort=${invert_sort}, @genre=${genre}, @type=${type};
+        EXEC APP.spExploreTitles @page_number=${page}, @page_size=${page_size}, @sort_by=${sort_by}, @invert_sort=${invert_sort}, @genre=${genre}, @type=${type};
     `.compile(trx),
     );
 
-    const parsed = result.rows.map((r) =>
-      schemas.searchSchema.parse({
-        ...r,
-        title_akas: JSON.parse(r.title_akas),
-      })
-    );
-
+    const parsed = schemas.exploreArraySchema.parse(result.rows);
     return parsed;
   });
 }
 
 export async function getCompleteData(title_id: string) {
-  return withDbContext(async (trx) => {
+  return await withDbContext(async (trx) => {
     const result = await trx.executeQuery<
       z.infer<typeof base_schemas.titleCompleteSchema>
     >(sql`
