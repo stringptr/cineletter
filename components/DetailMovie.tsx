@@ -10,11 +10,11 @@ export default function DetailMovie({ movie }: { movie: any }) {
 
   // --- LINKS ---
   const poster =
-    movie.links?.find((l: any) => l.link_type === "poster")?.link ??
+    movie.links?.find((l: any) => l?.link_type === "poster")?.link ??
       "/poster-placeholder.jpg";
 
   const backdrop =
-    movie.links?.find((l: any) => l.link_type === "backdrop")?.link ??
+    movie.links?.find((l: any) => l?.link_type === "backdrop")?.link ??
       poster;
 
   // --- BASIC META ---
