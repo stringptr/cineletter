@@ -77,12 +77,19 @@ export async function titleExplore(
 export async function getCompleteData(title_id: string) {
   return await withDbContext(async (trx) => {
     const result = await trx.executeQuery<
-      z.infer<typeof base_schemas.titleCompleteSchema>
+      {
+        rows: Array<
+          { JSON_DATA: z.infer<typeof base_schemas.titleCompleteSchema> }
+        >;
+      }
     >(sql`
         EXEC APP.spTitleCompleteDataGet ${title_id};
     `.compile(trx));
 
-    console.log(JSON.parse(result.rows[0].data));
-    return JSON.parse(result?.rows?.[0]?.data);
+    const data = await JSON.parse(result.rows[0].JSON_DATA);
+    const title = await JSON.parse(data.title);
+    const parsed_json = { ...data, title };
+    const parsed = base_schemas.titleCompleteSchema.parse(parsed_json);
+    return parsed_json;
   });
 }

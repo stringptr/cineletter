@@ -5,7 +5,7 @@ import withDbContext from "@/db/context.ts";
 import { generalSuccessSchema } from "@/schemas/common.ts";
 import * as updateSchemas from "../../../schemas/title/update.ts";
 
-export async function titleUpdate(
+export async function titleAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleUpdateSchema>,
 ) {
@@ -32,15 +32,14 @@ export async function titleUpdate(
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleAkaUpdate(
+export async function titleAkaAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleAkaUpdateSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleAkaUpdate
+      EXEC APP.spTitleAkaAdd
         ${params.title_id},
-        ${params.ordering},
         ${params.title_new},
         ${params.region_new},
         ${params.language_new},
@@ -53,15 +52,14 @@ export async function titleAkaUpdate(
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleGenreUpdate(
+export async function titleGenreAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleGenreUpdateSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleGenreUpdate
+      EXEC APP.spTitleGenreAdd
         ${params.title_id},
-        ${params.genre},
         ${params.genre_new};
     `.compile(trx),
   );
@@ -69,16 +67,14 @@ export async function titleGenreUpdate(
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleLinkUpdate(
+export async function titleLinkAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleLinkUpdateSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleLinkUpdate
+      EXEC APP.spTitleLinkAdd
         ${params.title_id},
-        ${params.link_type},
-        ${params.link},
         ${params.link_type_new},
         ${params.link_new};
     `.compile(trx),
@@ -87,15 +83,14 @@ export async function titleLinkUpdate(
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleNetworkUpdate(
+export async function titleNetworkAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleNetworkUpdateSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleNetworkUpdate
+      EXEC APP.spTitleNetworkAdd
         ${params.title_id},
-        ${params.network_id},
         ${params.network_id_new};
     `.compile(trx),
   );
@@ -103,16 +98,14 @@ export async function titleNetworkUpdate(
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleRegionUpdate(
+export async function titleRegionAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleRegionUpdateSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleRegionUpdate
+      EXEC APP.spTitleRegionAdd
         ${params.title_id},
-        ${params.production_region_code},
-        ${params.origin_region_code},
         ${params.production_region_code_new},
         ${params.origin_region_code_new};
     `.compile(trx),
@@ -121,15 +114,14 @@ export async function titleRegionUpdate(
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleSpokenLanguageUpdate(
+export async function titleSpokenLanguageAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleSpokenLanguageUpdateSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleSpokenLanguageUpdate
+      EXEC APP.spTitleSpokenLanguageAdd
         ${params.title_id},
-        ${params.spoken_language_id},
         ${params.spoken_language_id_new};
     `.compile(trx),
   );
@@ -137,15 +129,14 @@ export async function titleSpokenLanguageUpdate(
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleLanguageUpdate(
+export async function titleLanguageAdd(
   trx: Kysely<DATABASE>,
   params: z.infer<typeof updateSchemas.titleLanguageUpdateSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleLanguageUpdate
+      EXEC APP.spTitleLanguageAdd
         ${params.title_id},
-        ${params.language_code},
         ${params.language_code_new};
     `.compile(trx),
   );

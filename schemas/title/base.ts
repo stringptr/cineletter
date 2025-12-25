@@ -60,6 +60,20 @@ export const titleLanguageSchema = z.object({
   language_code: z.string(),
 });
 
+export const titleProductionCompanySchema = z.object({
+  title_id: z.string(),
+  company_id: z.number().int(),
+});
+
+export const titleCrewSchema = z.object({
+  title_id: z.string(),
+  ordering: z.number().int(),
+  person_id: z.string(),
+  category: z.string().nullable().optional().default(null),
+  job: z.string().nullable().optional().default(null),
+  character: z.string().nullable().optional().default(null),
+});
+
 export const titleCompleteSchema = z.object({
   title: titleSchema,
   title_akas: z.array(titleAkaSchema).optional(),
@@ -69,6 +83,9 @@ export const titleCompleteSchema = z.object({
   title_regions: z.array(titleRegionSchema).optional(),
   title_spoken_languages: z.array(titleSpokenLanguageSchema).optional(),
   title_languages: z.array(titleLanguageSchema).optional(),
+  title_production_companies: z.array(titleProductionCompanySchema)
+    .optional(),
+  title_crews: z.array(titleCrewSchema).optional(),
 });
 
 export const attributesSchema = z.array(

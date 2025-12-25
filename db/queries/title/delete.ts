@@ -1,152 +1,124 @@
 import { Kysely, sql, Transaction } from "kysely";
 import { z } from "zod";
 import { DATABASE } from "../../schema.ts";
-import withDbContext from "@/db/context.ts";
 import { generalSuccessSchema } from "@/schemas/common.ts";
-import * as updateSchemas from "../../../schemas/title/update.ts";
+import * as baseSchemas from "@/schemas/title/base.ts";
 
-export async function titleUpdate(
+export async function titleDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleUpdate
+      EXEC APP.spTitleDelete
         ${params.title_id},
-        ${params.title_new},
-        ${params.original_title_new},
-        ${params.tagline_new},
-        ${params.overview_new},
-        ${params.type_new},
-        ${params.is_adult_new},
-        ${params.popularity_new},
-        ${params.status_new},
-        ${params.season_number_new},
-        ${params.episode_number_new},
-        ${params.runtime_minute_new},
-        ${params.start_year_new},
-        ${params.end_year_new};
     `.compile(trx),
   );
 
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleAkaUpdate(
+export async function titleAkaDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleAkaUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleAkaSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleAkaUpdate
+      EXEC APP.spTitleAkaDelete
         ${params.title_id},
         ${params.ordering},
-        ${params.title_new},
-        ${params.region_new},
-        ${params.language_new},
-        ${params.type_new},
-        ${params.attributes_new},
-        ${params.is_original_title_new};
     `.compile(trx),
   );
 
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleGenreUpdate(
+export async function titleGenreDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleGenreUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleGenreSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleGenreUpdate
+      EXEC APP.spTitleGenreDelete
         ${params.title_id},
-        ${params.genre},
-        ${params.genre_new};
+        ${params.genre}
     `.compile(trx),
   );
 
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleLinkUpdate(
+export async function titleLinkDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleLinkUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleLinkSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleLinkUpdate
+      EXEC APP.spTitleLinkDelete
         ${params.title_id},
         ${params.link_type},
         ${params.link},
-        ${params.link_type_new},
-        ${params.link_new};
     `.compile(trx),
   );
 
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleNetworkUpdate(
+export async function titleNetworkDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleNetworkUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleNetworkSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleNetworkUpdate
+      EXEC APP.spTitleNetworkDelete
         ${params.title_id},
         ${params.network_id},
-        ${params.network_id_new};
     `.compile(trx),
   );
 
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleRegionUpdate(
+export async function titleRegionDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleRegionUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleRegionSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleRegionUpdate
+      EXEC APP.spTitleRegionDelete
         ${params.title_id},
         ${params.production_region_code},
         ${params.origin_region_code},
-        ${params.production_region_code_new},
-        ${params.origin_region_code_new};
     `.compile(trx),
   );
 
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleSpokenLanguageUpdate(
+export async function titleSpokenLanguageDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleSpokenLanguageUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleSpokenLanguageSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleSpokenLanguageUpdate
+      EXEC APP.spTitleSpokenLanguageDelete
         ${params.title_id},
         ${params.spoken_language_id},
-        ${params.spoken_language_id_new};
     `.compile(trx),
   );
 
   return generalSuccessSchema.parse(result.rows[0]);
 }
 
-export async function titleLanguageUpdate(
+export async function titleLanguageDelete(
   trx: Kysely<DATABASE>,
-  params: z.infer<typeof updateSchemas.titleLanguageUpdateSchema>,
+  params: z.infer<typeof baseSchemas.titleLanguageSchema>,
 ) {
   const result = await trx.executeQuery<z.infer<typeof generalSuccessSchema>>(
     sql`
-      EXEC APP.spTitleLanguageUpdate
+      EXEC APP.spTitleLanguageDelete
         ${params.title_id},
         ${params.language_code},
-        ${params.language_code_new};
     `.compile(trx),
   );
 

@@ -1,58 +1,77 @@
-import { z } from "zod";
+import { z, ZodRawShape } from "zod";
+
 import * as base_schemas from "./base.ts";
 
-export const titleUpdateSchema = base_schemas.titleSchema;
+function withOldNewExcept<T extends ZodRawShape>(
+  shape: T,
+  with_add_delete: boolean = false,
+  blacklist: readonly (keyof T)[] = ["title_id"],
+) {
+  const result: ZodRawShape = {};
 
-export const titleGenreUpdateSchema = base_schemas.titleGenreSchema.omit({
-  genre: true,
-}).extend({
-  genre_old: z.string,
-  genre_new: z.string,
-});
+  for (const key in shape) {
+    if (blacklist.includes(key)) continue;
+    result[`${key}_new`] = shape[key];
+  }
 
-export const titleAkaUpdateSchema = base_schemas.titleAkaSchema;
+  if (!with_add_delete) {
+    return z.object(result);
+  }
 
-export const titleLinkUpdateSchema = base_schemas.titleLinkSchema.omit({
-  link: true,
-  link_type: true,
-}).extend({
-  link_type_old: z.string(),
-  link_type_new: z.string(),
-  link_old: z.string(),
-  link_new: z.string(),
-});
-
-export const titleNetworkUpdateSchema = base_schemas.titleNetworkSchema.omit({
-  network_id: true,
-}).extend({
-  network_id_old: z.string().max(15),
-  network_id_new: z.string().max(15),
-});
-
-export const titleRegionUpdateSchema = base_schemas.titleRegionSchema.omit({
-  production_region_code: true,
-  origin_region_code: true,
-}).extend({
-  production_region_code_old: z.string().max(4),
-  origin_region_code_old: z.string().max(4),
-  production_region_code_new: z.string().max(4),
-  origin_region_code_new: z.string().max(4),
-});
-
-export const titleSpokenLanguageUpdateSchema = base_schemas
-  .titleSpokenLanguageSchema.omit({
-    spoken_language_id: true,
-  }).extend({
-    spoken_language_id_old: z.number().int(),
-    spoken_language_id_new: z.number().int(),
+  return z.object(result).extend({
+    will_be_deleted: z.boolean().optional().default(false),
+    will_be_added: z.boolean().optional().default(false),
   });
+}
 
-export const titleLanguageUpdateSchema = base_schemas.titleLanguageSchema.omit({
-  language_code: true,
-}).extend({
-  language_code_old: z.number().int(),
-  language_code_new: z.number().int(),
-});
+export const titleUpdateSchema = withOldNewExcept(
+  base_schemas.titleSchema.shape,
+);
+
+export const titleGenreUpdateSchema = withOldNewExcept(
+  base_schemas.titleGenreSchema.shape,
+  true,
+);
+
+export const titleAkaUpdateSchema = withOldNewExcept(
+  base_schemas.titleAkaSchema.shape,
+  true,
+);
+
+export const titleLinkUpdateSchema = withOldNewExcept(
+  base_schemas.titleLinkSchema.shape,
+  true,
+);
+
+export const titleNetworkUpdateSchema = withOldNewExcept(
+  base_schemas.titleNetworkSchema.shape,
+  true,
+);
+
+export const titleRegionUpdateSchema = withOldNewExcept(
+  base_schemas.titleRegionSchema.shape,
+  true,
+);
+
+export const titleSpokenLanguageUpdateSchema = withOldNewExcept(
+  base_schemas.titleSpokenLanguageSchema.shape,
+  true,
+);
+
+export const titleLanguageUpdateSchema = withOldNewExcept(
+  base_schemas.titleLanguageSchema.shape,
+  true,
+);
+
+export const titleCrewUpdateSchema = withOldNewExcept(
+  base_schemas.titleCrewSchema.shape,
+  true,
+);
+
+export const titleProductionCompanyUpdateSchema = withOldNewExcept(
+  base_schemas.titleProductionCompanySchema.shape,
+  true,
+);
 
 export const titleCompleteUpdateSchema = z.object({
   title: titleUpdateSchema.optional(),
