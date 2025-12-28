@@ -1,6 +1,6 @@
 import { sql } from "kysely";
 import { z } from "zod";
-import { withDbContext } from "@/db/context.ts";
+import withDbContext from "@/db/context.ts";
 import * as schemas from "@/schemas/title/main.ts";
 
 const titleListCompany = z.array(z.object({
@@ -11,7 +11,7 @@ const titleListCompany = z.array(z.object({
 export async function allTitleCompany(
   company_id: number,
 ) {
-  return withDbContext(async (trx) => {
+  return await withDbContext(async (trx) => {
     const result = await trx.executeQuery<z.infer<typeof titleListCompany>>(
       sql`EXEC APP.spAllTitleCompanyGet ${company_id}`
         .compile(trx),
@@ -31,7 +31,7 @@ export async function titleSearchByCompany(
   genre: string | null,
   type: string | null,
 ) {
-  return withDbContext(async (trx) => {
+  return await withDbContext(async (trx) => {
     const result = await trx.executeQuery<
       Array<z.infer<typeof schemas.searchSchema>>
     >(

@@ -17,6 +17,7 @@ export default function TitleUpdatePage() {
   );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [attributes, setAttributes] = useState({});
 
   function emptyFromSchema<T extends z.ZodObject<any>>(schema: T) {
     const shape = schema.shape;
@@ -59,6 +60,13 @@ export default function TitleUpdatePage() {
     }
 
     return data_diff;
+  }
+
+  function getFieldSchema(
+    objectSchema: z.ZodObject<any>,
+    key: string,
+  ): z.ZodTypeAny | undefined {
+    return objectSchema.shape?.[key];
   }
 
   function DuplicateColumn(
@@ -126,10 +134,21 @@ export default function TitleUpdatePage() {
 
   useEffect(() => {
     fetchData();
-  }, [title_id]);
+    const attributes = fetch(`/api/title/attribute?flatten=true`, {
+      cache: "force-cache",
+      next: { tags: ["title-attributes"] },
+    });
+    console.log(attributes);
+    setAttributes(attributes);
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (!data) return <div>No data found</div>;
+
+  interface SelectOption {
+    label: string;
+    value: string;
+  }
 
   interface ColumnFormProps {
     item?: any;
@@ -143,9 +162,15 @@ export default function TitleUpdatePage() {
 
     data: any;
     setData: React.Dispatch<React.SetStateAction<any>>;
-    type?: "text" | "number" | "date" | "textarea";
+
+    kind?: "input" | "textarea" | "select";
+    type?: "text" | "number" | "date";
+    options?: SelectOption[];
+
     disabled?: boolean;
     deletable?: boolean;
+
+    schema?: z.ZodTypeAny;
   }
 
   function ColumnForm({
@@ -158,13 +183,17 @@ export default function TitleUpdatePage() {
     label,
     data,
     setData,
+    kind = "input", // ✅ default here
     type = "text",
+    options,
     disabled = false,
     deletable = false,
+    schema,
   }: ColumnFormProps) {
     // ===============================
     // LOCAL INPUT STATE (KEY PART)
     // ===============================
+    const [error, setError] = useState<string | null>(null);
     const [localValue, setLocalValue] = useState("");
 
     // sync FROM parent → local
@@ -187,6 +216,17 @@ export default function TitleUpdatePage() {
     // COMMIT TO PARENT
     // ===============================
     const commitValue = (value: string) => {
+      if (schema) {
+        const result = schema.safeParse(value);
+
+        if (!result.success) {
+          setError(result.error.issues[0]?.message ?? "Invalid value");
+          return; // ❌ do not commit
+        }
+
+        setError(null); // ✅ valid
+      }
+
       if (arrayFieldName && idx !== undefined) {
         setData((prev: any) => {
           const arr = [...(prev[arrayFieldName] || [])];
@@ -204,41 +244,76 @@ export default function TitleUpdatePage() {
           const keys = fieldName.split(".");
           const next = { ...prev };
           let cur = next;
+
           for (let i = 0; i < keys.length - 1; i++) {
             cur[keys[i]] = { ...(cur[keys[i]] || {}) };
             cur = cur[keys[i]];
           }
+
           cur[keys[keys.length - 1]] = value;
           return next;
         });
       }
     };
 
-    const isDisabled = disabled || (item && item.will_be_deleted);
-
     // ===============================
     // RENDER
     // ===============================
-    const Input = type === "textarea" ? "textarea" : "input";
+
+    const isDisabled = disabled || (item && item.will_be_deleted);
 
     return (
       <div className="flex flex-col gap-2">
-        {label && (
-          <label className="text-sm font-medium">
-            {label}
-          </label>
-        )}
+        {label && <label className="text-sm font-medium">{label}</label>}
 
-        <Input
-          {...(type !== "textarea" ? { type } : {})}
-          value={localValue}
-          disabled={isDisabled}
-          onChange={(e: any) => setLocalValue(e.target.value)}
-          onBlur={() => commitValue(localValue)} // 🔑 commit on blur
-          className={`px-3 py-2 border rounded ${
-            isDisabled ? "bg-gray-300 text-gray-400" : "bg-white"
-          }`}
-        />
+        {kind === "select"
+          ? (
+            <select
+              value={localValue}
+              disabled={isDisabled}
+              onChange={(e) => {
+                setLocalValue(e.target.value);
+                commitValue(e.target.value); // select commits immediately
+              }}
+              className={`px-3 py-2 border rounded ${
+                isDisabled ? "bg-gray-300 text-gray-400" : "bg-white"
+              }`}
+            >
+              <option value="" disabled>
+                -- Select --
+              </option>
+
+              {options?.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          )
+          : kind === "textarea"
+          ? (
+            <textarea
+              value={localValue}
+              disabled={isDisabled}
+              onChange={(e) => setLocalValue(e.target.value)}
+              onBlur={() => commitValue(localValue)}
+              className={`px-3 py-2 border rounded ${
+                isDisabled ? "bg-gray-300 text-gray-400" : "bg-white"
+              }`}
+            />
+          )
+          : (
+            <input
+              type={type}
+              value={localValue}
+              disabled={isDisabled}
+              onChange={(e) => setLocalValue(e.target.value)}
+              onBlur={() => commitValue(localValue)}
+              className={`px-3 py-2 border rounded ${
+                isDisabled ? "bg-gray-300 text-gray-400" : "bg-white"
+              }`}
+            />
+          )}
 
         {deletable && arrayFieldName && item && (
           <label className="flex items-center gap-1 text-sm">
@@ -258,6 +333,8 @@ export default function TitleUpdatePage() {
             Delete
           </label>
         )}
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     );
   }
@@ -374,6 +451,7 @@ export default function TitleUpdatePage() {
               .replaceAll("_", " "),
           )}
           data={data}
+          schema={getFieldSchema(update_schemas.titleUpdateSchema, key)}
           setData={setData}
         />
       ))}
@@ -408,6 +486,10 @@ export default function TitleUpdatePage() {
                       key.replace(/[_-]/g, " "),
                     )}
                     data={data}
+                    schema={getFieldSchema(
+                      update_schemas.titleAkaUpdateSchema,
+                      key,
+                    )}
                     setData={setData}
                     deletable={idi === arr.length - 1}
                   />
@@ -462,6 +544,10 @@ export default function TitleUpdatePage() {
                     key.replace(/[_-]/g, " "),
                   )}
                   data={data}
+                  schema={getFieldSchema(
+                    update_schemas.titleGenreUpdateSchema,
+                    key,
+                  )}
                   setData={setData}
                   deletable={idi === arr.length - 1}
                 />
@@ -514,6 +600,10 @@ export default function TitleUpdatePage() {
                       key.replace(/[_-]/g, " "),
                     )}
                     data={data}
+                    schema={getFieldSchema(
+                      update_schemas.titleLinkUpdateSchema,
+                      key,
+                    )}
                     setData={setData}
                     deletable={idi === arr.length - 1}
                   />
@@ -567,6 +657,10 @@ export default function TitleUpdatePage() {
                     key.replace(/[_-]/g, " "),
                   )}
                   data={data}
+                  schema={getFieldSchema(
+                    update_schemas.titleNetworkUpdateSchema,
+                    key,
+                  )}
                   setData={setData}
                   deletable={idi === arr.length - 1}
                 />
@@ -619,6 +713,10 @@ export default function TitleUpdatePage() {
                     key.replace(/[_-]/g, " "),
                   )}
                   data={data}
+                  schema={getFieldSchema(
+                    update_schemas.titleRegionUpdateSchema,
+                    key,
+                  )}
                   setData={setData}
                   deletable={idi === arr.length - 1}
                 />
@@ -671,6 +769,10 @@ export default function TitleUpdatePage() {
                     key.replace(/[_-]/g, " "),
                   )}
                   data={data}
+                  schema={getFieldSchema(
+                    update_schemas.titleSpokenLanguageUpdateSchema,
+                    key,
+                  )}
                   setData={setData}
                   deletable={idi === arr.length - 1}
                 />
@@ -717,6 +819,7 @@ export default function TitleUpdatePage() {
               .map((key, idi, arr) => (
                 <ColumnForm
                   key={`languages-${idx}-${key}`}
+                  kind="select"
                   item={item}
                   idx={idx}
                   arrayFieldName="title_languages"
@@ -726,8 +829,13 @@ export default function TitleUpdatePage() {
                     key.replace(/[_-]/g, " "),
                   )}
                   data={data}
+                  schema={getFieldSchema(
+                    update_schemas.titleLanguageUpdateSchema,
+                    key,
+                  )}
                   setData={setData}
                   deletable={idi === arr.length - 1}
+                  options={attributes.genres}
                 />
               ))}
           </div>

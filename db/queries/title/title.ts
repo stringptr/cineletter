@@ -44,7 +44,8 @@ export async function titleSearch(
     const parsed = result.rows.map((r) =>
       r = {
         ...r,
-        title_akas: JSON.parse(r.title_akas),
+        akas: JSON.parse(r.akas),
+        genres: JSON.parse(r.genres),
       }
     );
 

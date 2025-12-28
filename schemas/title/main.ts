@@ -74,31 +74,14 @@ export const searchSchema = z.object({
   start_year: z.number().nullable().default(null),
   type: z.string(),
   relevance: z.number().nullable().default(null),
-  title_akas: z.array(
+  akas: z.array(
     z.object({
       title: z.string(),
     }),
   ).default([]),
 });
 
-export const searchArraySchema = z.array(
-  z.object({
-    title_id: z.string(),
-    title: z.string().nullable().default(null),
-    overview: z.string().nullable().default(null),
-    tagline: z.string().nullable().default(null),
-    rate_count: z.number().nullable().default(null),
-    average_rating: z.number().nullable().default(null),
-    start_year: z.number().nullable().default(null),
-    type: z.string(),
-    relevance: z.number().nullable().default(null),
-    title_akas: z.array(
-      z.object({
-        title: z.string(),
-      }),
-    ).default([]),
-  }),
-);
+export const searchArraySchema = z.array(searchSchema);
 
 export const exploreSchema = z.object({
   title_id: z.string(),
@@ -110,18 +93,11 @@ export const exploreSchema = z.object({
   start_year: z.number().nullable().default(null),
   type: z.string(),
   relevance: z.number().nullable().default(null),
+  akas: z.array(
+    z.object({
+      title: z.string(),
+    }),
+  ).default([]),
 });
 
-export const exploreArraySchema = z.array(
-  z.object({
-    title_id: z.string(),
-    title: z.string().nullable().default(null),
-    overview: z.string().nullable().default(null),
-    tagline: z.string().nullable().default(null),
-    rate_count: z.number().nullable().default(null),
-    average_rating: z.number().nullable().default(null),
-    start_year: z.number().nullable().default(null),
-    type: z.string(),
-    relevance: z.number().nullable().default(null),
-  }),
-);
+export const exploreArraySchema = z.array(exploreSchema);

@@ -1,13 +1,13 @@
-import { z, ZodRawShape } from "zod";
+import { z } from "zod";
 
 import * as base_schemas from "./base.ts";
 
-function withOldNewExcept<T extends ZodRawShape>(
+function withOldNewExcept<T extends z.ZodRawShape>(
   shape: T,
   with_add_delete: boolean = false,
   blacklist: readonly (keyof T)[] = ["title_id"],
 ) {
-  const result: ZodRawShape = {};
+  const result: z.ZodRawShape = {};
 
   for (const key in shape) {
     if (blacklist.includes(key)) continue;

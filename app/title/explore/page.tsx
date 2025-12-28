@@ -1,17 +1,20 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Card from "@/components/Card";
 import { searchDetail } from "@/store/title";
 
 export default function MoviePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // data
   const [data, setData] = useState<searchDetail[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // route & query
-  const searchParams = useSearchParams();
+  // init guard
+  const [initialized, setInitialized] = useState(false);
 
   // filters
   const [search, setSearch] = useState("");
@@ -24,23 +27,61 @@ export default function MoviePage() {
   const [page, setPage] = useState(1);
   const pageSize = 20;
 
-  // sync from URL → state
+  // attributes
+  const [attributes, setAttributes] = useState<{
+    genres: any[];
+    types: any[];
+  }>({
+    genres: [],
+    types: [],
+  });
+
+  /* ---------------------------------------------
+   * Load attributes (cached)
+   * -------------------------------------------*/
   useEffect(() => {
-    setSearch(decodeURIComponent(searchParams.get("search") ?? ""));
+    const fetchAttributes = async () => {
+      const [genres, types] = await Promise.all([
+        fetch("/api/title/attribute/genre", {
+          cache: "force-cache",
+          next: { tags: ["attribute-genres"] },
+        }).then((r) => r.json()),
+        fetch("/api/title/attribute/type", {
+          cache: "force-cache",
+          next: { tags: ["attribute-types"] },
+        }).then((r) => r.json()),
+      ]);
+
+      setAttributes({ genres, types });
+    };
+
+    fetchAttributes();
+  }, []);
+
+  /* ---------------------------------------------
+   * URL → State (reactive)
+   * -------------------------------------------*/
+  useEffect(() => {
+    setSearch(searchParams.get("search") ?? "");
     setSortBy(searchParams.get("sort_by") ?? "relevance");
     setInvertSort(searchParams.get("invert_sort") === "1");
     setGenre(searchParams.get("genre"));
     setType(searchParams.get("type"));
     setPage(Number(searchParams.get("page") ?? 1));
-  }, []);
 
-  // fetch data
+    setInitialized(true);
+  }, [searchParams]);
+
+  /* ---------------------------------------------
+   * Fetch data
+   * -------------------------------------------*/
   useEffect(() => {
+    if (!initialized) return;
+
     const fetchData = async () => {
       setLoading(true);
 
       const params = new URLSearchParams({
-        search: String(search),
         sort_by: sortBy,
         invert_sort: invertSort ? "1" : "0",
         page: String(page),
@@ -53,26 +94,31 @@ export default function MoviePage() {
 
       const res = await fetch(
         `/api/title/explore?${params.toString()}`,
+        {
+          cache: "force-cache",
+          next: { tags: [`explore-${params.toString()}`], revalidate: 3600 },
+        },
       );
 
       const json = await res.json();
-
-      if (json.success) {
-        setData(json.data);
-      }
+      if (json?.success) setData(json.data);
+      else setData([]);
 
       setLoading(false);
     };
 
     fetchData();
-  }, [search, sortBy, invertSort, genre, type, page]);
+  }, [initialized, search, sortBy, invertSort, genre, type, page]);
 
-  // sync state → URL
+  /* ---------------------------------------------
+   * State → URL (after init)
+   * -------------------------------------------*/
   useEffect(() => {
-    if (!search) return;
+    if (!initialized) return;
 
     const params = new URLSearchParams();
 
+    if (search) params.set("search", search);
     params.set("sort_by", sortBy);
     params.set("invert_sort", invertSort ? "1" : "0");
     params.set("page", String(page));
@@ -80,15 +126,25 @@ export default function MoviePage() {
     if (genre) params.set("genre", genre);
     if (type) params.set("type", type);
 
-    router.replace(
-      `/title/explore?${params.toString()}`,
-      { scroll: false },
-    );
-  }, [search, sortBy, invertSort, genre, type, page]);
+    router.replace(`/title/explore?${params.toString()}`, {
+      scroll: false,
+    });
+  }, [initialized, search, sortBy, invertSort, genre, type, page]);
 
   return (
     <div className="min-h-screen w-full p-8 flex flex-col gap-6">
-      {/* FILTER BAR */}
+      {/* SEARCH */}
+      <input
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1);
+        }}
+        placeholder="Search titles…"
+        className="w-full px-4 py-3 rounded-xl bg-[#ffffff0f] text-white border border-[#ffffff1a]"
+      />
+
+      {/* FILTERS */}
       <div className="flex flex-wrap gap-4 items-center">
         <select
           value={sortBy}
@@ -124,8 +180,11 @@ export default function MoviePage() {
           className="px-3 py-2 rounded-lg bg-[#ffffff0f] text-white border border-[#ffffff1a]"
         >
           <option value="">All Types</option>
-          <option value="movie">Movie</option>
-          <option value="tvSeries">TV Series</option>
+          {attributes.types.map((t) => (
+            <option key={t.type_name} value={t.type_name}>
+              {t.type_name}
+            </option>
+          ))}
         </select>
 
         <select
@@ -137,22 +196,23 @@ export default function MoviePage() {
           className="px-3 py-2 rounded-lg bg-[#ffffff0f] text-white border border-[#ffffff1a]"
         >
           <option value="">All Genres</option>
-          <option value="Drama">Drama</option>
-          <option value="Fantasy">Fantasy</option>
-          <option value="Comedy">Comedy</option>
-          <option value="Musical">Musical</option>
+          {attributes.genres.map((g) => (
+            <option key={g.genre_name} value={g.genre_name}>
+              {g.genre_name}
+            </option>
+          ))}
         </select>
       </div>
 
       {/* RESULTS */}
-      {loading && <p className="text-white/60">Loading...</p>}
+      {loading && <p className="text-white/60">Loading…</p>}
 
-      <div className="w-full grid gap-4">
+      <div className="grid gap-4">
         {data.map((m) => <Card key={m.title_id} title_data={m} />)}
       </div>
 
       {/* PAGINATION */}
-      <div className="flex justify-center items-center gap-4 mt-6">
+      <div className="flex justify-center gap-4 mt-6">
         <button
           disabled={page === 1}
           onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -161,9 +221,7 @@ export default function MoviePage() {
           ← Prev
         </button>
 
-        <span className="text-white/70 text-sm">
-          Page {page}
-        </span>
+        <span className="text-white/70 text-sm">Page {page}</span>
 
         <button
           disabled={data.length < pageSize}

@@ -6,15 +6,58 @@ import { useEffect, useState } from "react";
 import Card from "@/components/Card";
 import { searchDetail } from "@/store/title";
 
+type Props = {
+  params: {
+    company_id: string;
+    type: string;
+  };
+};
+
 export default function ExecutiveTitleExplorerPage() {
   const router = useRouter();
   const params = useParams<{ company_id: string }>();
+
   const searchParams = useSearchParams();
 
   const companyId = Number(params.company_id);
 
   const [data, setData] = useState<searchDetail[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // pagination
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+
+  // attributes
+  const [attributes, setAttributes] = useState<{
+    genres: any[];
+    types: any[];
+  }>({
+    genres: [],
+    types: [],
+  });
+
+  /* ---------------------------------------------
+   * Load attributes (cached)
+   * -------------------------------------------*/
+  useEffect(() => {
+    const fetchAttributes = async () => {
+      const [genres, types] = await Promise.all([
+        fetch("/api/title/attribute/genre", {
+          cache: "force-cache",
+          next: { tags: ["attribute-genres"] },
+        }).then((r) => r.json()),
+        fetch("/api/title/attribute/type", {
+          cache: "force-cache",
+          next: { tags: ["attribute-types"] },
+        }).then((r) => r.json()),
+      ]);
+
+      setAttributes({ genres, types });
+    };
+
+    fetchAttributes();
+  }, []);
 
   // filters
   const [search, setSearch] = useState("");
@@ -133,8 +176,11 @@ export default function ExecutiveTitleExplorerPage() {
           className="px-3 py-2 rounded-lg bg-[#ffffff0f] text-white border border-[#ffffff1a]"
         >
           <option value="">All Types</option>
-          <option value="movie">Movie</option>
-          <option value="tvSeries">TV Series</option>
+          {attributes.types.map((t) => (
+            <option key={t.type_name} value={t.type_name}>
+              {t.type_name}
+            </option>
+          ))}
         </select>
 
         {/* GENRE */}
@@ -144,10 +190,11 @@ export default function ExecutiveTitleExplorerPage() {
           className="px-3 py-2 rounded-lg bg-[#ffffff0f] text-white border border-[#ffffff1a]"
         >
           <option value="">All Genres</option>
-          <option value="Drama">Drama</option>
-          <option value="Fantasy">Fantasy</option>
-          <option value="Comedy">Comedy</option>
-          <option value="Musical">Musical</option>
+          {attributes.genres.map((g) => (
+            <option key={g.genre_name} value={g.genre_name}>
+              {g.genre_name}
+            </option>
+          ))}
         </select>
       </div>
 
