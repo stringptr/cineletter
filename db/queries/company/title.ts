@@ -2,11 +2,7 @@ import { sql } from "kysely";
 import { z } from "zod";
 import withDbContext from "@/db/context.ts";
 import * as schemas from "@/schemas/title/main.ts";
-
-const titleListCompany = z.array(z.object({
-  title_id: z.string(),
-  title: z.string().nullable(),
-}));
+import { titleListCompany } from "@/schemas/company/main.ts";
 
 export async function allTitleCompany(
   company_id: number,

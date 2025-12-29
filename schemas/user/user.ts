@@ -44,3 +44,34 @@ export const detailsSchema = z.object({
   created_at: z.coerce.date(),
 });
 
+export const signupSchema = z.object({
+  email: z.string().email("Invalid email address"),
+
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .regex(/^[a-zA-Z0-9_.]+$/, "Only letters, numbers, _ and . allowed"),
+
+  name: z.string().min(1, "Name is required"),
+
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters"),
+
+  passwordVerif: z.string(),
+}).refine(
+  (data) => data.password === data.passwordVerif,
+  {
+    message: "Passwords do not match",
+    path: ["passwordVerif"],
+  },
+);
+
+export const loginSchema = z.object({
+  credential: z
+    .string()
+    .min(4, "Username or email is required"),
+  password: z
+    .string()
+    .min(1, "Password must be at least 8 characters"),
+});
