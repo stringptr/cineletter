@@ -48,53 +48,6 @@ export async function regionRating(
   });
 }
 
-export async function topCompaniesRatingRateCount(
-  num: number = 5,
-  year: number | null = null,
-  genre: string | null = null,
-  region: string | null = null,
-  sort_by: string | null = "rate_count",
-) {
-  return await withDbContext(async (trx) => {
-    console.log(num, year, genre, region, sort_by);
-    const result = await trx.executeQuery<
-      z.infer<typeof schemas.topCompaniesRatingRateCountSchema>
-    >(
-      sql`EXEC APP.spTopCompaniesRatingRateCount ${num}, ${year}, ${genre}, ${region}, ${sort_by}`
-        .compile(trx),
-    );
-
-    const parsed = result.rows.map((r) =>
-      schemas.topCompaniesRatingRateCountSchema.parse(r)
-    );
-
-    return parsed;
-  });
-}
-
-export async function topCompaniesProduction(
-  num: number = 5,
-  year: number | null = null,
-  genre: string | null = null,
-  region: string | null = null,
-  type: string | null = null,
-) {
-  return await withDbContext(async (trx) => {
-    const result = await trx.executeQuery<
-      z.infer<typeof schemas.topCompaniesProductionSchema>
-    >(
-      sql`EXEC APP.spTopCompaniesProduction @num=${num}, @year=${year}, @genre=${genre}, @region=${region}, @type=${type}`
-        .compile(trx),
-    );
-
-    const parsed = result.rows.map((r) =>
-      schemas.topCompaniesProductionSchema.parse(r)
-    );
-
-    return parsed;
-  });
-}
-
 export async function titleRatingBins(
   company_id: number | null = null,
   year: number | null = null,

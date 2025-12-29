@@ -243,42 +243,11 @@ const execKPIData = {
   avgRatingAll: "7.4",
 };
 
-const topCompaniesDataRaw = [
-  { name: "Disney", rating: 8.5, vote_count: 12000 },
-  { name: "Warner Bros", rating: 7.2, vote_count: 15000 },
-  { name: "Universal", rating: 7.8, vote_count: 9000 },
-  { name: "Paramount", rating: 6.9, vote_count: 8500 },
-  { name: "Sony", rating: 7.0, vote_count: 11000 },
-  { name: "Netflix", rating: 6.5, vote_count: 18000 },
-];
-
 const quantityQualityData = Array.from({ length: 15 }, (_, i) => ({
   x: Math.floor(Math.random() * 100) + 10,
   y: parseFloat(((Math.random() * 4) + 5).toFixed(1)),
   z: Math.floor(Math.random() * 50000) + 1000,
 }));
-
-// REVISI: DATA YEARLY TREND (RATING & VOTE, BUKAN REVENUE)
-const yearlyTrendData = [
-  { year: "2020", Rating: 7.2, Vote: 250000 },
-  { year: "2021", Rating: 7.5, Vote: 320000 },
-  { year: "2022", Rating: 7.1, Vote: 280000 },
-  { year: "2023", Rating: 7.8, Vote: 410000 },
-  { year: "2024", Rating: 8.2, Vote: 560000 },
-];
-
-const successRateData = [
-  { name: "Success", value: 85, fill: "#ff3b3b" },
-];
-
-// MARKETING DATA
-const penetrationData = [
-  { name: "US", interest: 4000, supply: 2400 },
-  { name: "ID", interest: 3000, supply: 1398 },
-  { name: "JP", interest: 2000, supply: 9800 },
-  { name: "BR", interest: 2780, supply: 1200 },
-  { name: "FR", interest: 1890, supply: 1500 },
-];
 
 // --- COMPONENT: KPI CARD ---
 const KPICard = (
@@ -399,14 +368,56 @@ const ChartGradients = () => (
 // ==========================================
 // VIEW: EXECUTIVE DASHBOARD
 // ==========================================
-const ExecutiveView = () => {
+type ViewProps = {
+  data?: any;
+  global_data?: any;
+  company_details?: {};
+  is_current_company?: boolean;
+};
+const ExecutiveView = (
+  { data, global_data, company_details, is_current_company }: ViewProps,
+) => {
   const [compMetric, setCompMetric] = useState("rating");
   const [trendMetric, setTrendMetric] = useState("Rating");
+  const [yearBack, setYearBack] = useState(10);
 
-  const sortedCompanies = [...topCompaniesDataRaw]
-    .sort((a: any, b: any) => b[compMetric] - a[compMetric])
-    .slice(0, 5);
+  const topCompaniesDataRaw = global_data?.top_companies_rating_data?.map?.((
+    t,
+  ) => ({
+    name: t?.company_name,
+    rating: t?.average_rating,
+    vote_count: t?.rate_count,
+  }));
 
+  const sortedCompanies = topCompaniesDataRaw
+    ? [...topCompaniesDataRaw]?.sort?.((a: any, b: any) =>
+      b?.[compMetric] - a?.[compMetric]
+    )
+      ?.slice?.(0, 5)
+    : [];
+
+  const title_count = data?.genre_data?.length !== 0
+    ? data?.genre_data?.reduce?.(
+      (sum: number, x: { title_count: number }) => sum + x.title_count,
+      0,
+    )
+    : 0;
+  const avg = ((r) => (r.c ? r.s / r.c : null))(
+    (data?.genre_data ?? []).reduce(
+      (a, g) => ({
+        s: a.s + (g.average_rating ?? 0) * (g.rate_count ?? 0),
+        c: a.c + (g.rate_count ?? 0),
+      }),
+      { s: 0, c: 0 },
+    ),
+  );
+  const success = data?.title_success_data?.find?.((s) =>
+    s?.indicator === "Success"
+  )?.title_count;
+  const failed = data?.title_success_data?.find?.((s) =>
+    s?.indicator === "Failed"
+  )?.title_count;
+  const successPercent = (success / (success + failed) * 100).toFixed(2);
   return (
     <div className="space-y-8 animate-fadeIn pb-10">
       <ChartGradients />
@@ -414,14 +425,17 @@ const ExecutiveView = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="Total Production"
-          value={execKPIData.totalFilms}
+          value={data?.total_production}
           subtext="Films produced all time"
           icon={Film}
         />
         <KPICard
           title="Top Genre Volume"
-          value={execKPIData.topGenre}
-          subtext={`${execKPIData.topGenrePercent} of total library`}
+          value={data?.genre_data?.[0]?.genre}
+          subtext={`${
+            (data?.genre_data?.[0]?.title_count / title_count *
+              100).toFixed(2)
+          }% of total library`}
           icon={PieIcon}
           color="text-[#ff3b3b]"
         />
@@ -433,8 +447,8 @@ const ExecutiveView = () => {
           color="text-yellow-400"
         />
         <KPICard
-          title="Global Avg Rating"
-          value={execKPIData.avgRatingAll}
+          title="Avg Rating"
+          value={data?.average_rating?.toFixed(2)}
           subtext="Across all productions"
           icon={Activity}
         />
@@ -500,7 +514,11 @@ const ExecutiveView = () => {
               innerRadius="70%"
               outerRadius="100%"
               barSize={20}
-              data={successRateData}
+              data={[{
+                name: "Success",
+                value: successPercent,
+                fill: "#ff3b3b",
+              }]}
               startAngle={180}
               endAngle={0}
               cy="60%"
@@ -524,7 +542,7 @@ const ExecutiveView = () => {
                 dominantBaseline="middle"
                 className="fill-white text-5xl font-black"
               >
-                85%
+                {successPercent}%
               </text>
               <text
                 x="50%"
@@ -625,7 +643,13 @@ const ExecutiveView = () => {
         >
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
-              data={yearlyTrendData}
+              data={data?.company_yearly_performance_data?.filter((c) =>
+                c.year > (new Date().getFullYear() - yearBack)
+              )?.map((c) => ({
+                year: String(c.year),
+                Rating: Number(c.average_rating),
+                Vote: Number(c.rate_count),
+              })) ?? []}
               margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
               <CartesianGrid
@@ -665,33 +689,27 @@ const ExecutiveView = () => {
 // ==========================================
 // VIEW: MARKETING DASHBOARD
 // ==========================================
-type MarketingViewProps = {
-  data?: any;
-  global_data?: any;
-  company_details?: {};
-  is_current_company?: boolean;
-};
 
 const MarketingView = (
-  { data, global_data, company_details, is_current_company }:
-    MarketingViewProps,
+  { data, global_data, company_details, is_current_company }: ViewProps,
 ) => {
+  const total = data?.language_data?.length !== 0
+    ? data?.language_data?.reduce?.(
+      (sum: number, x: { title_count: number }) => sum + x.title_count,
+      0,
+    )
+    : 0;
   const localized = data?.language_data?.length !== 0
     ? data?.language_data?.filter?.((l) => l.language_code !== null)?.reduce?.(
       (sum: number, x: { title_count: number }) => sum + x.title_count,
       0,
     )
     : 0;
-  const unlocalized = 1 - localized;
-  const localizedPercent = data?.language_data?.length !== 0
-    ? (1 -
-      data?.language_data?.find?.((item) => item.language_code === null)
-          ?.title_count /
-        data?.language_data?.reduce?.(
-          (sum: number, x: { title_count: number }) => sum + x.title_count,
-          0,
-        ))
-    : 0;
+  const unlocalized = total - localized;
+  const localizedPercent = ((localized / total) * 100)
+    ?.toFixed(2);
+  const unlocalizedPercent = (100 - localizedPercent)
+    ?.toFixed(2);
   return (
     <div className="space-y-8 animate-fadeIn pb-10">
       <ChartGradients />
@@ -744,11 +762,8 @@ const MarketingView = (
         />
         <KPICard
           title="Localization Gap"
-          value={(1 - Number(localizedPercent)).toPrecision(3)}
-          subtext={`${
-            data?.language_data?.find?.((item) => item?.language_code === null)
-              ?.title_count ?? 0
-          } Unlocalized`}
+          value={`${unlocalizedPercent}%`}
+          subtext={`${unlocalized} Unlocalized`}
           icon={AlertCircle}
           color="text-[#ff3b3b]"
         />
@@ -859,10 +874,10 @@ const MarketingView = (
               <Pie
                 data={[{
                   name: "Localized",
-                  value: (localized / (localized + unlocalized)) * 100,
+                  value: localizedPercent,
                 }, {
                   name: "Missing",
-                  value: 100 - ((localized / (localized + unlocalized)) * 100),
+                  value: unlocalizedPercent,
                 }]}
                 cx="50%"
                 cy="50%"
@@ -881,7 +896,7 @@ const MarketingView = (
                 dominantBaseline="middle"
                 className="fill-white text-3xl font-black"
               >
-                {localizedPercent.toPrecision(3)}%
+                {localizedPercent}%
               </text>
               <text
                 x="50%"
@@ -1032,7 +1047,6 @@ export function DashboardContent() {
   useEffect(() => {
     const fetchAttributes = async () => {
       try {
-        setPageLoading(true);
         setAttributesLoading(true);
 
         const [current_company, all_company, current_company_detail] =
@@ -1063,17 +1077,17 @@ export function DashboardContent() {
         console.error("Failed to fetch attributes:", error);
       } finally {
         setAttributesLoading(false);
-        setPageLoading(false);
       }
     };
 
     fetchAttributes();
   }, []);
 
-  async function fetchMarketingData(
+  async function fetchData(
     company_id: number,
     type: string,
     params: Record<string, string | number | null | undefined>,
+    role_type: "marketing" | "executive" = "marketing",
   ) {
     const search = new URLSearchParams();
     search.set("type", type);
@@ -1085,7 +1099,7 @@ export function DashboardContent() {
     });
 
     const url =
-      `/api/company/${company_id}/marketing/dashboard?${search.toString()}`;
+      `/api/company/${company_id}/${role_type}/dashboard?${search.toString()}`;
     console.log("Fetching:", url);
 
     const res = await fetch(url, {
@@ -1105,8 +1119,7 @@ export function DashboardContent() {
 
   useEffect(() => {
     const run = async () => {
-      // Don't run if attributes aren't loaded or company_id is missing
-      if (attributesLoading || !company_id) {
+      if (attributesLoading || !company_id || role !== "marketing") {
         console.log("Skipping fetch - not ready");
         return;
       }
@@ -1127,17 +1140,17 @@ export function DashboardContent() {
       const [region_data, language_data, title_rating_bin_data] = await Promise
         .all(
           [
-            fetchMarketingData(
+            fetchData(
               is_current_company ? Number(company_id) : 0,
               "company_region_rating",
               fetchParams,
             ),
-            fetchMarketingData(
+            fetchData(
               is_current_company ? Number(company_id) : 0,
               "company_language_title_count",
               fetchParams,
             ),
-            fetchMarketingData(
+            fetchData(
               is_current_company ? Number(company_id) : 0,
               "company_title_rating_bin",
               fetchParams,
@@ -1173,12 +1186,12 @@ export function DashboardContent() {
     year,
     type,
     use_data,
+    role,
   ]);
 
   useEffect(() => {
     const run = async () => {
-      // Don't run if attributes aren't loaded or company_id is missing
-      if (attributesLoading || !company_id) {
+      if (attributesLoading || !company_id || role !== "marketing") {
         console.log("Skipping fetch - not ready");
         return;
       }
@@ -1198,7 +1211,7 @@ export function DashboardContent() {
 
       const [region_data] = await Promise.all(
         [
-          fetchMarketingData(
+          fetchData(
             0,
             "company_region_rating",
             fetchParams,
@@ -1229,6 +1242,169 @@ export function DashboardContent() {
     genre,
     year,
     type,
+    role,
+  ]);
+
+  useEffect(() => {
+    const run = async () => {
+      if (attributesLoading || !company_id || role !== "executive") {
+        console.log("Skipping fetch - not ready");
+        return;
+      }
+
+      setLoading(true);
+
+      const fetchParams = {
+        number,
+        sort_by: sort_by[use_data],
+        region: region[use_data],
+        year: year[use_data],
+        title_type: type[use_data],
+        genre: genre[use_data],
+      };
+
+      console.log("Fetching with params:", fetchParams);
+
+      const [
+        genre_data,
+        title_success_data,
+        company_yearly_performance_data,
+        total_production,
+        average_rating,
+      ] = await Promise
+        .all(
+          [
+            fetchData(
+              is_current_company ? Number(company_id) : 0,
+              "company_genre_rating",
+              fetchParams,
+              "executive",
+            ),
+            fetchData(
+              is_current_company ? Number(company_id) : 0,
+              "company_title_success",
+              fetchParams,
+              "executive",
+            ),
+            fetchData(
+              is_current_company ? Number(company_id) : 0,
+              "company_yearly_performance",
+              fetchParams,
+              "executive",
+            ),
+            fetchData(
+              is_current_company ? Number(company_id) : 0,
+              "company_total_production",
+              fetchParams,
+              "executive",
+            ),
+            fetchData(
+              is_current_company ? Number(company_id) : 0,
+              "company_average_rating",
+              fetchParams,
+              "executive",
+            ),
+          ],
+        );
+
+      if (!role) return;
+
+      setData((prev) => {
+        const safePrev = prev ?? {};
+
+        return {
+          ...safePrev,
+          [use_data]: {
+            ...(safePrev[use_data] ?? {}),
+            [role]: {
+              ...(safePrev[use_data]?.[role] ?? {}),
+              genre_data,
+              title_success_data,
+              company_yearly_performance_data,
+              total_production,
+              average_rating,
+            },
+          },
+        };
+      });
+    };
+
+    run();
+  }, [
+    attributesLoading,
+    company_id,
+    genre,
+    region,
+    year,
+    type,
+    use_data,
+    role,
+  ]);
+
+  useEffect(() => {
+    const run = async () => {
+      if (attributesLoading || !company_id || role !== "executive") {
+        console.log("Skipping fetch - not ready");
+        return;
+      }
+
+      setLoading(true);
+
+      const fetchParams = {
+        number,
+        sort_by: sort_by[use_data],
+        region: region[use_data],
+        year: year[use_data],
+        title_type: type[use_data],
+        genre: genre[use_data],
+      };
+
+      console.log("Fetching with params:", fetchParams);
+
+      const [top_companies_rating_data, top_companies_production_data] =
+        await Promise.all(
+          [
+            fetchData(
+              0,
+              "top_companies_rating_rate_count",
+              fetchParams,
+              "executive",
+            ),
+            fetchData(
+              0,
+              "top_companies_production",
+              fetchParams,
+              "executive",
+            ),
+          ],
+        );
+
+      setData((prev) => {
+        const safePrev = prev ?? {};
+
+        return {
+          ...safePrev,
+          all_company: {
+            ...(safePrev?.all_company ?? {}),
+            [role]: {
+              ...(safePrev?.all_company?.[role] ?? {}),
+              top_companies_production_data,
+              top_companies_rating_data,
+            },
+          },
+        };
+      });
+    };
+
+    run();
+  }, [
+    attributesLoading,
+    company_id,
+    genre,
+    year,
+    type,
+    use_data,
+    role,
   ]);
 
   useEffect(() => {
@@ -1402,9 +1578,10 @@ export function DashboardContent() {
               onChange={(e) =>
                 setRegion({
                   ...region,
-                  [use_data]: e.target.value === ""
-                    ? null
-                    : e.target.value || null,
+                  [use_data]:
+                    e.target.value === "" || e.target.value === "Global"
+                      ? null
+                      : e.target.value || null,
                 })}
             >
               <option value={null} className="text-black">Global</option>
@@ -1445,14 +1622,23 @@ export function DashboardContent() {
         </div>
 
         {/* DYNAMIC CONTENT */}
-        {role === "executive" ? <ExecutiveView /> : (
-          <MarketingView
-            data={data?.[use_data]?.[role]}
-            global_data={data?.all_company?.[role]}
-            company_details={companyDetails}
-            is_current_company={is_current_company}
-          />
-        )}
+        {role === "executive"
+          ? (
+            <ExecutiveView
+              data={data?.[use_data]?.[role]}
+              global_data={data?.all_company?.[role]}
+              company_details={companyDetails}
+              is_current_company={is_current_company}
+            />
+          )
+          : (
+            <MarketingView
+              data={data?.[use_data]?.[role]}
+              global_data={data?.all_company?.[role]}
+              company_details={companyDetails}
+              is_current_company={is_current_company}
+            />
+          )}
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ export const topCompaniesProductionSchema = z.object({
 });
 
 export const topCompaniesRatingRateCountSchema = z.object({
-  company_id: z.number().nonoptional(),
+  company_id: z.int().nonoptional(),
   company_name: z.string().nonempty().nonoptional(),
   rate_count: z.int().positive().nullable(),
   average_rating: z.float64().positive().nullable(),
@@ -41,4 +41,23 @@ export const topCompaniesRatingRateCountSchema = z.object({
 export const companyTitleRatingBinsSchema = z.object({
   rating_bin: z.string().nonempty().nonoptional(),
   title_count: z.int().positive().nonoptional(),
+});
+
+export const companyGenreRatingSchema = z.object({
+  genre: z.string().nullable().optional(),
+  average_rating: z.float64().nonoptional().nullable(),
+  rate_count: z.int().nonoptional().nullable(),
+  title_count: z.int().optional().nullable(),
+});
+
+export const companyTitleSuccessSchema = z.object({
+  indicator: z.string().nonempty().nonoptional(),
+  title_count: z.int().positive().nonoptional(),
+});
+
+export const companyYearlyPerformanceSchema = z.object({
+  year: z.int().positive().nonoptional(),
+  title_count: z.int().positive().optional().optional(),
+  average_rating: z.float64().positive().nullable().optional(),
+  rate_count: z.int().positive().nullable().optional(),
 });

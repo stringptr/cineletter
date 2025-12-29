@@ -48,28 +48,6 @@ export async function GET(
       return NextResponse.json(res);
     }
 
-    case "top_companies_production": {
-      const res = await queries.topCompaniesProduction(
-        num,
-        year,
-        genre,
-        region,
-        titleType,
-      );
-      return NextResponse.json(res);
-    }
-
-    case "top_companies_rating_rate_count": {
-      const res = await queries.topCompaniesRatingRateCount(
-        num,
-        year,
-        genre,
-        region,
-        sort_by,
-      );
-      return NextResponse.json(res);
-    }
-
     default:
       return NextResponse.json(
         { error: "Invalid type" },

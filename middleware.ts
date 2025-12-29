@@ -42,6 +42,7 @@ export default function middleware(req: NextRequest) {
     "/api/auth/register",
     "/api/health",
     "/api/title",
+    "/api/company",
   ];
 
   if (pathname.startsWith("/api")) {
